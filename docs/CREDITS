@@ -1,0 +1,31 @@
+MailZu Credits:
+---------------
+
+* Project Creators:
+  - Samuel Tran <stran2005@users.sourceforge.net>
+  - Brian Wong <bwsource@users.sourceforge.net>
+
+* Project Principal Developers:
+  - Samuel Tran <stran2005@users.sourceforge.net>
+  - Brian Wong <bwsource@users.sourceforge.net>
+
+* Project Developers/Patch Writers:
+  - Nicolas Peyrussie <peyrouz@users.sourceforge.net>
+
+* Translators:
+  - Brian Wong <bwsource@users.sourceforge.net>		English
+  - Nicolas Peyrussie <peyrouz@users.sourceforge.net>	French
+  - Paolo Cravero					Italian
+  - Samuel Tran <stran2005@users.sourceforge.net>	French
+  - Ricardo Muñoz					Spanish
+
+* Special Thanks to:
+  - Nick Korbel who allowed us to re-use some codes
+    from his excellent project PHPScheduleIt (http://www.php.brickhost.com/index.php).
+    MailZu is based on PHPScheduleIt framework for a more rapid development.
+
+* Contributors:
+  - Bogdan Baliuci: Exchange 5.5 authentication
+  - Paolo Cravero: Italian translation and suggestions to improve LDAP authentication
+  - Ricardo Muñoz: Spanish translation
+  - Andrew A. Neuschwander: lots of debugging

@@ -1,0 +1,37 @@
+IMAP Autentication Settings
+---------------------------
+
+To configure MailZu to authenticate users against IMAP,
+edit the config/config.php and tailor the variables mentioned here for your
+environment.
+
+Select the IMAP authentication method:
+
+  /* Options are:
+        ldap -> Standard LDAP server, e.g. OpenLDAP
+        ad   -> MS Active Directory
+        sql  -> PHP PEAR compatible database
+        exchange  -> MS Exchange 5.5
+        imap  -> IMAP protocol
+  */
+  $conf['auth']['serverType'] = 'imap';
+
+
+These three attributes are enough to be authenticated to the MailZu interface:
+
+  /*** IMAP Authentication Settings ***/
+  // List of IMAP servers and ports (e.g.: 10.1.1.20:143)
+  $conf['auth']['imap_hosts'] = array( 'imap.example.com:993' );
+
+  // IMAP type
+  /* Options are:
+        imap     -> default
+        imaptls  -> do not do start-TLS to encrypt the session, even with servers that support it
+        imapssl  -> use the Secure Socket Layer to encrypt the session
+        imapcert -> use the Secure Socket Layer to encrypt the session,
+                    do not validate certificates from TLS/SSL server, needed if server uses self-signed certificates
+  */
+  $conf['auth']['imap_type'] = 'imapssl';
+
+  // Domain name part of the email address, (e.g.: example.com)
+  $conf['auth']['imap_domain_name'] = 'example.com';

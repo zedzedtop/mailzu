@@ -1,0 +1,77 @@
+LDAP Autentication Settings
+-------------------------------
+
+To configure MailZu to authenticate users against LDAP.
+Edit the config/config.php and tailor the variables mentioned here for your
+environment.
+
+  // Set an authentication method: 'ldap','ad', or 'sql'
+  $conf['auth']['serverType'] = 'ldap';
+
+Set the LDAP host(s) and search base
+
+  // List of LDAP servers
+  $conf['auth']['ldap_hosts'] = array( 'ldaphost' );
+  // if set to true, LDAP connection over SSL (PHP 4.0.4 minimum)
+  // if set to false or not set, unencrypted LDAP connection on port 389
+  $conf['auth']['ldap_ssl'] = false;
+
+  // LDAP base dn, e.g. 'dc=example,dc=com'
+  $conf['auth']['ldap_basedn'] = 'dc=example,dc=com';
+
+Set the LDAP attribute used for the RDN to identify a person:
+
+  // LDAP attribute used for the RDN to identify a person
+  // For instance if the DN for a given user is uid=joesmith,ou=people,dc=example,dc=com
+  // the attribute would be 'uid'
+  $conf['auth']['ldap_user_identifier'] = 'uid';
+
+Set the container where all users are kept. If users are stored in multiple
+containers leave this option blank.
+
+  // Container where all users are kept, e.g. 'ou=people'
+  // If you have users in multiple containers, leave this option blank.
+  // In this particular case you will need to allow anonymous binding
+  // or specify a user/password to bind with 
+  $conf['auth']['ldap_user_container'] = 'ou=people';
+
+Now we must set the login format. For LDAP it is usually the 'uid'
+attribute, or if you want a fully qualified email address as the login, it
+could be 'mail'. 
+
+  // LDAP attribute used as login, e.g. 'uid', 'mail' or 'uidNumber'
+  $conf['auth']['ldap_login'] = 'uid';
+
+At the login page of MailZu, with this setting the user would use the login
+'user', or if the configuration variable was set to the 'mail' attribute, the
+login would be 'user@example.com'.
+
+These two attributes are enough to be authenticated to the MailZu interface,
+but the third attribute is what determines which messages the authenticated
+user is permitted to view. This configuration variable is a list of
+attributes that contain recipient addresses. In most cases this will be a
+list with one item such as the attribute 'mail'. But if you want to include
+more address you can add more attribute names to the list.
+
+For example, if the login used was 'user', than there must be an attribute or
+field that determines the email address associated with this user. Even if the
+login was 'user@example.com' the third attribute may or may not be the same.
+The address might have been aliased to an internal address 
+'user@internal.example.com'.
+
+  // LDAP mail attributes used as the final recipient address
+  // Could be the actual mail attribute or another attribute
+  // (in the latter case look for the "%m" token in the ldap query filter in
+  // amavisd.conf)
+  $conf['auth']['ldap_mailAttr'] = array('mailRoutingAddress');
+
+If the attribute listed for the login format is not the same as the binding 
+username or if no user container is not specified, we must be able to search the directory.
+The settings below binds using this account to search the directory.
+Set them to empty string ('') for anonymous bind.
+
+  $conf['auth']['ldap_searchUsername'] = 'manager';
+  $conf['auth']['ldap_searchPassword'] = 'secret';
+
+If you want to specify the name of the user in the welcome message, you need to set the parameter below. LDAP attribute such as 'givenName', 'cn' or 'displayName' can be used:
+$conf['auth']['ldap_name'] = 'givenName';

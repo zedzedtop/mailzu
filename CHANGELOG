@@ -1,0 +1,180 @@
+MailZu 0.8RC3 (06.14.2007):
+----------
+- Fixed an inconsistency in the FAQ
+- Fixed bug when using proxyAddresses attribute in AD authentication
+- Added installation requirement of using the TIMESTAMP type for the 'time_iso' field
+when using MySQL
+- Added more Czech translation; contribution from Petr Stehlik
+
+MailZu 0.8RC2:
+----------
+- Fixes Email Administrator Header reported by Benny Pedersen.
+- Updates description of adminEmail in INSTALL and config.php.sample.
+- Isolate OR statements in convertEmailaddresses2SQL
+- Fixed $_SESSION['sessionMail'][0] submitted by Serge Algarotti
+- Added option toggle for 'Site Quarantine Summary'
+- Added $conf['app']['debug'] to config.php.sample 
+  - Debug dumps all SQL Queries to the log file
+
+
+MailZu 0.8RC1 (03.23.2007):
+----------
+- Support for binary mail_text column of quarantine table. Since amavisd-new 2.4.4
+  the mail_text column was changed so that the data would not be affected by
+  the encoding of the database.
+
+  If you are using the binary type on this column, set
+
+    $conf['db']['binquar'] = True;
+
+  in your config.php.
+
+- Support for recipient delimiters. New option in config.php.
+  
+    $conf['recipient_delimiter'] = ''; // set to '+' or any delimiter 
+
+  Only one character for the delimiter is supported. Contribution by Brice Figureau.
+
+- mz_db_clean.pl - changed mysql query to use UTC_TIMESTAMP() by Brice Figureau.
+
+- Removed default use of included PEAR DB and Mail libraries. The default is to use
+  system PEAR libraries instead.
+
+- Made creation of search fields more dynamic and fixed alignment.
+
+- Added Czech translation, contribution from Vladmir Volcko.
+
+- Added Portuguese translation, contribution from Julio Cesar Webstarb Jr.
+
+* Following changes implemented by Jeremy Fowler <jfowler06@users.sourceforge.net>
+  - New Summary totals table, group by date
+  - User Quarantine Summary: Added Viruses and Bad Headers for Addministrator users
+  - Added Site Quarantine Summary (Spam, Banned, Viruses, Bad Headers, Pending, Total)
+  - Added Viruses and Bad Headers to Search fields (Administrators Only)
+  - Added Content Type column
+  - Multiple email addresses (AD proxyAddresses)
+    - Adds To: column on table and searches for user quarantine
+    - Updated config.php.sample
+  - Query syntax tweaks
+  - config.php: s_admins/m_admins/restricted_users logins are now case insensitive
+  - Fixes non-US date format sorting on summaries. Reported by Alan Munday.
+  - Allow users to view quarantined Bad Header messages with option:
+     $conf['app']['allowBadHeaders']
+     - released automatically without admin approval
+  - Allow users to view quarantined Viruses (Dangerous, use with great trepidation) 
+     $conf['app']['allowViruses']
+     - stored in Pending Requests for admin approval
+  - Allow users to search by Mailid
+     $conf['app']['allowMailid']
+  - New AmavisdEngine using PEAR::Net_Socket (included with safeMode Libraries)
+     - faster timeout 
+     - better error reporting
+  - Fix "From:Array" when sending email from "Email Administrator". Reported by Serge Algarotti 
+  - Can now have multiple adminEmail addresses:
+     $conf['app']['adminEmail'] = array('support@example.com', 'helpdesk@example.com');
+  - contrib/additional_indexes.sql: Highly recommended indexes to add to the amavisd database.
+  - Added 'X-Amavis-Alert' to the full headers list. Shows Banned File/Virus/Bad Heaeder info.
+  - Added "Loading Summary..." Message while summary queries are loading.
+  - Added style to list of sanitized tags.
+  - Fixes foreach data validation bug on invalid MIME messages 
+
+
+MailZu 0.7b:
+----------
+
+- Added compatibility for amavisd-new 2.4.0 or later database schema. Needed for
+  proper handling of file-based quarantining.
+
+  If you are currently using amavisd-new 2.4.0 or later, no changes are necessary.
+
+  If you are using a version of amavisd-new prior to 2.4.0 (with old database 
+  schema), please add the 'quar_loc' column to your 'msgs' table with:
+
+    ALTER TABLE msgs ADD quar_loc varchar(255) DEFAULT '';
+  
+  This is a mandatory requirement for this version and future versions of MailZu.
+  In other words, MailZu does not care which version of amavisd-new you are running,
+  as long as the SQL tables match those that are needed by amavisd-new 2.4.0 or  
+  later.
+
+- Specific SQL queries when listing a quarantine index tended to be optimized when
+  using MySQL only. These queries are now used only when the site configures MySQL 
+  as their backend. Faster and efficient queries are now the default when any other
+  database is chosen. 
+
+- Admins should have been able to login even though the configuration parameter 
+  login_restriction was set to 'true'. This was not the case and was fixed to work
+  as intended.
+
+- In a quarantine index, deleting all the items on the last page would then return
+  a page with no results. Fixed. Reported by Paolo Cravero.
+
+- In a quarantine index, using the "Delete All" button would delete the items on
+  the first page only. This has been fixed to include all items in a quarantine index.
+
+
+MailZu 0.6:
+----------
+
+- Fix bug when displaying error message after a failed release
+- Add a FAQ item on releasing emails and where to get support
+- Add Spanish translation, contribution from Ricardo Muñoz
+- Modify FAQ and INSTALL file to specify that MailZu only supports 
+  amavisd-new greater than 2.3.0 and less than 2.4.0
+
+
+MailZu 0.6RC5:
+-------------
+
+- Fix bug in authentication class. Bug reported and fixed by Andrew A. Neuschwander
+- Define constants for method getGlobalVar(). Bug reported by Andrew A. Neuschwander
+- Fix AD LDAP protocol support. Bug reported and fixed by Keith Becker
+- Fix From address bug introduced by a change in ['sessionMail']. The latter used 
+  to be a scalar, it is now an array. Bug reported by Rich Wales
+- Add the language selection display option
+- Fix Exchange authentication broken in 0.6RC4
+
+
+MailZu 0.6RC4:
+-------------
+
+- Fix 'Delete All' localization issue; bug reported by Paolo Cravero
+- Fix bug: doing a 'View Orignal' action as a non-privileged user the message source is not displayed
+(Bug reported by Paolo Cravero)
+- Add MailZu favicon
+- Replace mailzu.png with mailzu.gif (transparent). Problem with background color when using PNG.
+- Add condition to check if dn exists for LDAP Auth (bug reported by Paolo Cravero)
+- Remove localization of mailzu logs
+- Fix bug reported by Paolo Cravero: 'Showing messages x to y' was not working properly
+- Update the French Help file
+- Remove the incomplete Spanish translation
+- Fix IMAP auth issue when no domain name is provided. Bug reported by Robert Wohleb.
+- Add LDAP over SSL support for LDAP/AD authentication
+- Add the option to view site quarantine in search only mode: no message will be displayed when 
+  clicking on 'Site Quarantine', which saves lots of time especially for very larges sites.
+
+
+MailZu 0.6RC3:
+-------------
+
+- Add Exchange 5.5 authentication (contribution from Bogdan Baliuc)
+- Add IMAP authentication
+- Fix bug in SQL authentication
+- Fix bug where all messages were listed regardless of msgs.quar_type
+- Add Italian language (contribution from Paolo Cravero)
+- Make LDAP authentication more generic (suggestion from Paolo Cravero)
+- Improve localization
+- Improve error logging
+- Clean up DBEngine, Quarantine and AmavisdEngine classes
+- Add patch (PHP code) to support MySQL version prior to 4.1.x
+- Modify the purging script to be compatible with other databases, run the 
+  script with '--help' or '-h' to see the options.
+
+
+MailZu 0.6RC2:
+-------------
+
+- upgrade PEAR DB
+- fix compatibility issues with PostgreSQL in SQL queries
+- fix bug by removing dependency to 'quarantine' table in some SQL queries
+- modify SQL queries to improve overall speed when viewing quarantines

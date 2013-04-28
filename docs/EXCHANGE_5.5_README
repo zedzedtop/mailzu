@@ -1,0 +1,29 @@
+Exchange 5.5 Autentication Settings
+-----------------------------------
+
+To configure MailZu to authenticate users against Exchange 5.5,
+edit the config/config.php and tailor the variables mentioned here for your
+environment.
+
+  // Set an authentication method: 'ldap','ad', 'sql' or 'exchange' (Exchange 5.5)
+  $conf['auth']['serverType'] = 'exchange';
+
+
+These three attributes are enough to be authenticated to the MailZu interface:
+
+  // Exchange 5.5 server host and IMAP port
+  $conf['auth']['exch_host'] = '10.1.1.20:143';
+
+
+  // Exchange's LDAP server, it usually has the same IP as the Exchange server
+  $conf['auth']['exch_ldap'] = '10.1.1.20';
+
+
+  // Exchange default NT domain
+  $conf['auth']['exch_domain'] = 'mycorp';
+
+
+At the MailZu login, enter the user NT login as username.
+This code may not work if the user's Exchange alias is different from the NT login.
+
+Thanks to Bogdan Baliuci <b.baliuc@rogers.com> for his code contribution.

@@ -1,0 +1,82 @@
+SQL Autentication Settings
+-------------------------------
+
+To configure MailZu to authenticate users against a PEAR compatible SQL 
+database...
+
+  // Set an authentication method: 'ldap','ad', or 'sql'
+  $conf['auth']['serverType'] = 'sql';
+
+Set the type of database to authenticate to...
+  /*** Database Authentication Settings ***/
+  // Database type to be used by PEAR
+  /* Options are:
+        mysql  -> MySQL
+        pgsql  -> PostgreSQL
+        ibase  -> InterBase
+        msql   -> Mini SQL
+        mssql  -> Microsoft SQL Server
+        oci8   -> Oracle 7/8/8i
+        odbc   -> ODBC (Open Database Connectivity)
+        sybase -> SyBase
+        ifx    -> Informix
+        fbsql  -> FrontBase
+  */
+  $conf['auth']['dbType'] = 'mysql';
+
+Set the SQL host with optional port
+
+  // Database host specification (hostname[:port]) 
+  $conf['auth']['dbHostSpec'] = 'dbhost';
+
+Specify the credentials needed to access the database
+
+  // Database user who can access the auth database
+  $conf['auth']['dbUser'] = 'user';
+
+  // Password for above user to auth database
+  $conf['auth']['dbPass'] = 'pass';
+
+  // Name for auth database
+  $conf['auth']['dbName'] = 'dbname';
+
+  // Name for auth table that contains usernames and passwords
+  $conf['auth']['dbTable'] = 'dbtablename';
+
+  // Name of the 'first name' or 'full name' field of the SQL table
+  // If such a field does not exist, leave it blank
+  $conf['auth']['dbTableName'] = 'givennamefield';
+
+Now we must set the login format. 
+
+  // Name of the Username field of the SQL table
+  $conf['auth']['dbTableUsername'] = 'usernamefield';
+
+At the login page of MailZu, with this setting the user would use the value 
+listed in the above field, which may or may not be the fully qualified email
+address.
+
+Now we must set the field for the password.
+
+  // Name of the password field of the SQL table
+  $conf['auth']['dbTablePassword'] = 'passwordfield';
+
+Is the password stored in the database the MD5 digest?
+
+  // true   = passwords are stored md5 encrypted in database
+  // false  = passwords are stored cleartext in database
+  $conf['auth']['dbIsMd5'] = true;
+
+These two attributes are enough to be authenticated to the MailZu interface,
+but the third attribute is what determines which messages the authenticated
+user is permitted to view. This attribute is the final recipient address. It is
+the email address that amavisd-new reports as the envelope recipient. 
+
+For example, if the login used was 'user', than there must be an attribute or
+field that determines the email address associated with this user. Even if the
+login was 'user@example.com' the third attribute may or may not be the same.
+The address might have been aliased to an internal address 
+'user@internal.example.com'.
+
+  // Name of the 'mail address' field of the SQL table
+  $conf['auth']['dbTableMail'] = 'mailaddress';

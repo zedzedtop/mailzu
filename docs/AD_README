@@ -1,0 +1,70 @@
+Active Directory Autentication Settings
+----------------------------------------
+
+To configure MailZu to authenticate users against Active Directory.
+Edit the config/config.php and tailor the variables mentioned here for your
+environment.
+
+  // Set an authentication method: 'ldap','ad', or 'sql'
+  $conf['auth']['serverType'] = 'ad';
+
+Set the AD host(s) and search base
+
+  // List of AD Domain controllers 
+  $conf['auth']['ad_hosts'] = array( 'dc1.example.com' );
+  // if set to true, LDAP connection over SSL (PHP 4.0.4 minimum)
+  // if set to false or not set, unencrypted LDAP connection on port 389
+  $conf['auth']['ad_ssl'] = false;
+
+  // AD base dn, e.g. 'dc=example,dc=com'
+  $conf['auth']['ad_basedn'] = 'dc=example,dc=com';
+
+Set the Active Directory domain:
+
+  // AD domain, e.g. 'example.com'
+  $conf['auth']['ad_domain'] = 'example.com';
+
+Set the attribute usually used to identify a user in Active Directory:
+
+  // AD attribute used to identify a person
+  $conf['auth']['ad_user_identifier'] = 'samaccoutname';
+
+Now we must set the login format. For AD the default is the 'samaccountname'
+attribute, or if you want a fully qualified email address as the login, it
+could be 'mail'. 
+
+  // AD attribute used as login, e.g. 'samaccountname' or 'mail'
+  $conf['auth']['ad_login'] = 'samaccountname';
+
+At the login page of MailZu, with this setting the user would use the login
+'user', or if the configuration variable was set to the 'mail' attribute, the
+login would be 'user@example.com'.
+
+These two attributes are enough to be authenticated to the MailZu interface,
+but the third attribute is what determines which messages the authenticated
+user is permitted to view. This attribute is the final recipient address. It is
+the email address that amavisd-new reports as the envelope recipient. 
+
+For example, if the login used was 'user', than there must be an attribute or
+field that determines the email address associated with this user. Even if the
+login was 'user@example.com' the third attribute may or may not be the same.
+The address might have been aliased to an internal address 
+'user@internal.example.com'.
+
+  // AD mail attribute used as the final recipient address
+  // Could be the actual mail attribute or another attribute
+  // (in the latter case look for the "%m" token in the ldap query filter in 
+  // amavisd.conf)
+  $conf['auth']['ad_mailAttr'] = 'mail';
+
+If the attribute listed for the login format is not the same as the binding 
+username, we must be able to search the directory. The settings below binds 
+using this account to search the directory. AD does not allow anonymous
+binds.
+
+  $conf['auth']['ad_searchUsername'] = 'manager';
+  $conf['auth']['ad_searchPassword'] = 'secret';
+
+If you want to specify the name of the user in the welcome message, you need to set the parameter below. AD attribute such as 'g
+ivenName', 'cn' or 'displayName' can be used:
+$conf['auth']['ad_name'] = 'givenName';

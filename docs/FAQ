@@ -1,0 +1,70 @@
+
+Frequently Asked Questions
+=======================================
+
+1) What is MailZu?
+
+  MailZu is a quarantine management interface for amavisd-new. It allows
+users to view their quarantined items and request release (for suspect malware),
+release, or mark them for deletion.
+
+2) What version of amavisd-new do I need?
+
+  MailZu will work with amavisd-new greater than 2.3.0.
+
+3) Does MailZu support multiple amavisd-new instances?
+
+  Yes. If every amavisd-new instance in your environment stores its data into
+the same SQL database there should be no problem. The only limitation is that
+the AM.PDP protocol must listen on the same port for each amavisd-new
+instance.
+
+4) Do I have to configure amavisd-new to quarantine email to SQL?
+
+  No. MailZu does not require that the actual message bodies be kept in SQL.
+Release is handled by amavisd-new, so MailZu need not be aware of the location
+of the quarantine. Quarantine to SQL is only neccessary if you want your users
+to be able to view spam in the MailZu interface, otherwise they will only see 
+the basic headers of the quarantined message.
+
+5) Why do some or all messages in the MailZu message index not viewable?
+
+  The reason might be that email is not quarantined to SQL. This can be enabled
+by setting these variables in amavisd-new:
+
+  $banned_files_quarantine_method = 'sql:';
+  $spam_quarantine_method         = 'sql:';
+
+6) Releasing messages does not seem to work. What is wrong?
+
+  There may be a couple of reasons for this behavior. The most common problems
+is that PHP is not built with sockets enabled ( --enable-sockets ), or it is
+a network related issue.
+
+  The first problem is easy to diagnose and fix. If releasing emails is still 
+not working, then we have to diagnose the network problem.
+
+  It is important to understand that in order for MailZu to support more than
+one amavisd-new instance, it must connect to the appropriate host. The correct
+host is retrieved from the SQL record inserted by amavisd-new. Check the 'host'
+column of the 'msgs' table. Please make sure that you can connect to the AM.PDP 
+port of the host listed in that record from the host that runs MailZu.
+
+  user@mailzuhost# telnet <host in SQL record> <AM.PDP port>
+
+If a connection is not made, then review your amavisd-new configuration regarding
+the interfaces it listens on, and the ACLs regarding connecting clients. Be
+careful, the AM.PDP protocol does not send a greeting or any data whatsoever on
+a successful connection. It may appear that a connecion did not work, when in fact
+it did.
+
+7) Where can I get support?
+
+  If you are having a problem with MailZu and the solution is not obvious, take
+a look at the mailing list archive at:
+
+  http://sourceforge.net/mailarchive/forum.php?forum=mailzu-users
+
+and/or subscribe at this URL:
+
+  https://lists.sourceforge.net/lists/listinfo/mailzu-users

@@ -1,0 +1,416 @@
+
+Installation instructions for MailZu
+=======================================
+
+MailZu, a quarantine management interface for amavisd-new. It allows users
+and administrators to view quarantined messages and release, request, or
+delete them. 
+
+MailZu need not reside on the same host as amavisd-new. MailZu also supports
+environments with multiple amavisd-new instances (as long as all instances
+report to the same SQL database). MailZu is only suitable for amavisd-new
+versions greater than 2.3.0.
+
+
+Requirements
+===============
+
+MailZu requires that amavisd-new has SQL reporting enabled. If you want
+users to be able to view more than just the simple message headers, quarantining
+to SQL should be enabled.
+
+The requirements for running MailZu is as follows:
+
+1) Amavisd-new greater than 2.3.0. 
+2) A PHP-compatible web server
+3) PHP 4.3.x or greater with socket support ( --enable-sockets )
+4) PEAR::PEAR
+5) PEAR::DB 
+6) PEAR::Mail_Mime
+7) PEAR::Net_Socket
+
+PHP must also be built with the respective driver for your backend. 
+For LDAP or Active Directory PHP must be built with '--with-ldap'. 
+For the database backends you can use '--with-pgsql', '--with-mysql', 
+etc. 
+
+For the included and optional database cleanup script
+(scripts/mz_db_clean.pl):
+
+1) Perl 5.6 
+2) Perl DBI with respective database driver
+
+MailZu utilizes the recommended values for the SQL field msgrcpt.rs as
+stated in the README_FILES/README.sql that comes with the amavisd-new
+distribution. The cleanup script performs database purging based on old
+records and those messages marked for deletion 'D'. If you already have a
+script which performs database maintenance, it is recommeneded to quickly
+look through the queries in the provided script and merge them. 
+
+
+AMAVISD-NEW SQL REQUIREMENTS
+==============================
+
+If you are currently using amavisd-new 2.4.0 or later, no changes are necessary.
+
+If using MySQL, please make sure that you use the TIMESTAMP type for the 
+database field 'time_iso'. Please refer to the amavisd-new documentation for
+details. 
+
+If you are using a version of amavisd-new prior to 2.4.0 (with old database
+schema), please add the 'quar_loc' column to your 'msgs' table with:
+
+  ALTER TABLE msgs ADD quar_loc varchar(255) DEFAULT '';
+
+This is a mandatory requirement for this version and future versions of MailZu.
+In other words, MailZu does not care which version of amavisd-new you are running,
+as long as the SQL tables match those that are needed by amavisd-new 2.4.0 or
+later.
+
+
+Unpacking the distribution
+============================
+
+Fetch the latest tarball from http://www.mailzu.net. The file has a format
+of mailzu-x.y.tar.gz where 'x' is the version and 'y' is the revision.
+
+Extract the archive with:
+
+	# tar xvfz mailzu-x.y.tar.gz      
+	# cd mailzu-x.y
+          
+
+Overview
+================
+The amavisd, SQL, and MailZu services act together to offer a complete 
+quarantine management interface. The relationship is as follows:
+
+-- Amavisd-new populates the SQL database with basic information about every
+   message processed and optionally quarantining malware to the database
+-- MailZu reads from the basic information from the SQL database to give a
+   webmail like view of quarantined items. If the item was quarantined to the
+   database, MailZu can also allow viewing of the complete email.
+-- MailZu requests the release of email by opening a TCP/IP socket to the 
+   responsible amavisd-new instance. Amavisd-new itself then queries the 
+   database for the message information and releases the email to the user.
+
+These services may reside on one particular hosts or a seperate host for each 
+application. MailZu cannot communicate to Amavisd-new through a unix socket.
+
+
+Configuration
+================
+
+In order to use MailZu, amavisd-new must be configured to store message
+information in an SQL database. 
+
+
+Amavisd-new Configuration
+---------------------------
+
+All configuration variables mentioned in this subsection are meant for
+amavisd-new.
+
+MailZu is not required to reside on the same host amavisd-new does, but
+MailZu must be able to communicate with all instances of amavisd-new in your
+environment to release messages.
+
+Since MailZu can support multiple amavisd-new instances it
+is important that the mechanism for communication is TCP/IP, not unix
+sockets. 
+
+Information about every message processed by amavisd-new can be stored in
+SQL by setting the amavisd-new configuration variable @storage_sql_dsn.
+
+  # Example setting:
+  @storage_sql_dsn =
+    ( ['DBI:mysql:database=mail;host=127.0.0.1;port=3306', 'user',
+       'passwd']);
+
+or:
+
+  @storage_sql_dsn = @lookup_sql_dsn; # If you plan to use the same database
+				      # as the SQL lookups
+
+Specify the ports that amavisd-new should bind to.
+
+  $inet_socket_bind = undef; 	      # Bind on all interfaces
+				      # or check amavisd.conf-sample for
+				      # more specific examples
+
+  $inet_socket_port = [10024,9998];   # listen on this local TCP port(s)
+     				        (see $protocol)
+
+Specify an arbitrary policy name tied for this port. 'AM.PDP' is recommended
+for clarity.
+
+  $interface_policy{'9998'} = 'AM.PDP';
+
+Associate a policy bank to that port where the protocol is 'AM.PDP' and
+restrict access to that port to the host that MailZu is configured and any
+additional hosts you desire.
+
+  $policy_bank{'AM.PDP'} = {
+    protocol => 'AM.PDP',
+    inet_acl => [qw( 127.0.0.1 [::1] <IP of MailZu host> )],
+  };
+
+The configuration settings above is the minimal setting required by MailZu. 
+
+This allows MailZu to give an index of all messages that were considered spam
+or banned. The index displays the To (admins only), From, Subject, Date, and 
+spam Score, for each message.
+
+If you want users to be able to view the body of their spam messages via MailZu,
+you must configure amavisd-new to quarantine messages to SQL. This can be done
+with
+
+  $banned_files_quarantine_method = 'sql:';
+  $spam_quarantine_method         = 'sql:';
+
+This optional setting has no impact on MailZu's capability to release or
+request mail.
+
+Reload amavisd-new and try initiating a telnet session from the MailZu host to
+the AM.PDP port
+
+  # telnet <Amavisd-new Host> 9998
+
+If a connection is made than configuration of amavisd-new was successful.
+Repeat this configuration procedure for every amavisd-new instance.
+
+
+MailZu Configuration
+----------------------
+
+The configuration file for MailZu resides in config/config.php. The settings in
+this file determines the authentication mechanism, the administrators, the
+AM.PDP port used in your amavisd-new configuration, and other miscellaneous
+settings.
+
+The configuration file is populated with helpful comments that explain every
+variable and their possible settings. Only the most important settings will be
+discussed here.
+
+Amavisd-new related settings
+-------------------------------
+
+For MailZu to display message indices and perform actions on the message in
+question, it must be able to communicate with the amavisd-new instances and the
+database which stores message information. MailZu requires the same read/write
+credentials as amavisd-new in order to mark mail read or for deletion.
+
+First specify the port where the AM.PDP protocols listens on. This is the same
+port we specified earlier in "Amavisd-new Configuration". 
+
+  // Amavisd-new AM.PDP port 
+  // Since the port number can not be stored in the database
+  // all instances of amavisd-new must use the same AM.PDP port
+  $conf['amavisd']['spam_release_port'] = '9998';
+
+All amavisd-new instances must use the same port number, but not necessarily
+9998. Now we must configure MailZu to query the same database that amavisd-new
+is populating.
+
+  $conf['db']['dbType'] = 'mysql';
+  $conf['db']['dbUser'] = 'user';
+  $conf['db']['dbPass'] = 'pass';
+  $conf['db']['dbName'] = 'dbname';
+  $conf['db']['hostSpec'] = 'hostname.example.com:port';
+
+These settings should correspond to the credentials entered for the amavisd-new
+configuration. The 'dbType' can be any PEAR DB compatible database. Please see
+the config/config.php file for more information.
+
+Note: If you are using MySQL database, the preferred version is 4.1.0 or later.
+If your version is prior to 4.1.x, you need to apply a patch to make MailZu
+compatible with it. The patch is located in contrib/mysql and is called
+mysql4.0_compat.diff.
+
+
+Authentication settings
+-------------------------------
+
+You can have a user authenticate to any of the following backends. 
+
+  /* Options are:
+        ldap -> Standard LDAP server, e.g. OpenLDAP
+        ad   -> MS Active Directory
+        sql  -> PHP PEAR compatible database
+        exchange  -> MS Exchange 5.5
+        imap  -> IMAP protocol
+  */
+  $conf['auth']['serverType'] = 'ldap';
+
+Each seperate authentication method have related configuration variables that
+must be set. Please see the appropriate (MECH)_README for more information.
+
+Regardless of which method you choose, it is important to understand that there
+will always be three attributes ( or fields for SQL ) that is critical for a
+successful login. 
+
+The first of the three is the user password. For LDAP and AD, this need not be
+specified, for the authentication is handled by the binding process. But for
+SQL, the field of where the password is stored is required. 
+
+The second attribute is the login format. For LDAP it is usually the 'uid'
+attribute, or if you want a fully qualified email address as the login, it
+could be 'mail'. Active Directory has similar attributes. 
+
+This setting controls whether the user would use the login 'user', or if the 
+configuration variable was set to the 'mail' attribute, the login would be 
+'user@example.com'. 
+
+These two attributes are enough to be authenticated to the MailZu interface,
+but the third attribute is what determines which messages the authenticated
+user is permitted to view. This attribute is the final recipient address. It is
+the email address that amavisd-new reports as the envelope recipient. 
+
+For example, if the login used was 'user', than there must be an attribute or
+field that determines the email address associated with this user. Even if the
+login was 'user@example.com' the third attribute may or may not be the same.
+The address might have been aliased to an internal address 'user@internal.example.com'.
+
+To get a description on how to set up these critical configuration variables for
+your authentication, please see the appropriate (MECH)_README file in docs/.
+
+
+Miscellaneous Settings
+------------------------
+
+Set this option to display the default MailZu logo or your custom logo:
+
+  // Image to appear at the top of each page ['img/mailzu.png']
+  // Leave this string empty if you are not going to use an image
+  // Specifiy link as 'directory/filename.gif'
+  $conf['ui']['logoImage'] = 'img/mailzu.png';
+
+You can customize the welcome message with the following option:
+
+  // Welcome message show at login page ['Welcome to MailZu!']
+  $conf['ui']['welcome'] = 'Welcome to MailZu!';
+
+Set the full URL to the root directory of MailZu:
+
+  // The full url to the root directory of MailZu
+  // Please do not include the trailing slash
+  $conf['app']['weburi'] = 'https://mailzuhost.example.com/mailzu';
+
+This section deals with how mail is sent from MailZu. Please select one of the four available options.
+Then define the necessary variables:
+
+  // How to send email ['mail']
+  /* Options are:
+          'mail' for PHP default mail
+          'smtp' for SMTP
+          'sendmail' for sendmail
+          'qmail' for qmail MTA
+  */
+  $conf['app']['emailType'] = 'mail';
+
+  // SMTP email host address []
+  // This is only required if emailType is SMTP
+  $conf['app']['smtpHost'] = '';
+
+  // SMTP port [25]
+  // This is only required if emailType is SMTP
+  $conf['app']['smtpPort'] = 25;
+
+  // Path to sendmail ['/usr/sbin/sendmail']
+  // This only needs to be set if the emailType is 'sendmail'
+  $conf['app']['sendmailPath'] = '/usr/sbin/sendmail';
+
+  // Path to qmail ['/var/qmail/bin/sendmail']
+  // This only needs to be set if the emailType is 'qmail'
+  $conf['app']['qmailPath'] = '/var/qmail/bin/sendmail';
+
+Set the support/admin email address with this option:
+
+  // The email addresses of the support staff and/or administrator
+  // An email is sent to these addresses when a user reports an error
+  // or clicks the "Email Administrator" link
+  $conf['app']['adminEmail'] = array('support@example.com', 'helpdesk@example.com');
+
+
+Set this option to 1 if you want to email the admin upon each release request
+
+  // Email admin upon Release Request
+  // When users try to release a banned file a request is sent to an
+  // admin. Admins can always look at 'Pending Requests' in the MailZu
+  // interface regardless.
+  //
+  // $conf['app']['notifyAdmin'] = 1;
+  $conf['app']['notifyAdmin'] = 0;
+
+Set this option to show the "Email Administrator" link
+
+  // Show the "Email Administrator" link for users
+  // If you have a large userbase, you may not want users to have the
+  // capability to just email the admin
+  // Note: The "Report Error" link is still available regardless
+  // of this option. This link is only visible if a fatal error occurs
+  // with releasing attachments. Default is 1 (show link).
+  //
+  // $conf['app']['showEmailAdmin'] = 0;
+  $conf['app']['showEmailAdmin'] = 1;
+
+Set this option to 1 if you want to view the site quarantine in search only mode.
+This option is very useful for large sites.
+
+  // Show Site Quarantine in search only mode if set to 1.
+  // No message is displayed when clicking on 'Site quarantine'.
+  // Keep the default for for large sites.
+  // $conf['app']['searchOnly'] = 1
+  $conf['app']['searchOnly'] = 1;
+
+Set the default language code:
+
+  // The default language code.  This must be included in the language list in
+  // langs.php
+  $conf['app']['defaultLanguage'] = 'en_US';
+
+Set this option if you want to allow the language selection
+
+  // Display the choice for language selection during the login screen if set to 1       
+  // Otherwise set it to 0
+  // Default is 1
+  $conf['app']['selectLanguage'] = '1';
+
+Set this option to 1 if you want to use the Pear DB and Mail_Mime libraries included
+with MailZu:
+
+  // If you are running PHP in safe mode, set this value to 1.
+  // This toggles if we use the included Pear DB and Mail_Mime libraries included
+  // with this distribution
+  $conf['app']['safeMode'] = 1;
+
+Set the time format:
+
+  // View time in 12 or 24 hour format [12]
+  // Only acceptable values are 12 and 24 (if an invalid number is set, 12 hour
+  // time will be used)
+  $conf['app']['timeFormat'] = 12;
+
+Set the title of the application:
+
+  // Title of application ['MailZu']
+  // Will be used for page titles and in 'From' field of email responses
+  $conf['app']['title'] = 'MailZu';
+
+Set this option to 1 if you want to log system activity and errors:
+
+  // If we should log system activity or not [0]
+  // Can be 0 (for no) and 1 (for yes)
+  $conf['app']['use_log'] = 1;
+
+Set the log file name (full path) using this option. You will need to create that file beforehand
+and make it writable by the user running Apache.
+
+  // Directory/file for log ['/var/log/mailzu.log']
+  // Specify as /directory/filename.extension
+  $conf['app']['logfile'] = '/var/log/mailzu.log';
+
+Set this option to determine the number of messages displayed per page:
+
+  // Maximum number of messages displayed per page
+  $conf['app']['displaySizeLimit'] = 50;

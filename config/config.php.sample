@@ -1,0 +1,452 @@
+<?php
+/**
+* This file sets all the configuration options
+* All configuration options, such as colors,
+*  text sizes, email addresses, etc.
+*  are set in this file.
+* @author Samuel Tran <stran2005@users.sourceforge.net>
+* @author Brian Wong <bwsource@users.sourceforge.net>
+* @author Jeremy Fowler <jfowler06@users.sourceforge.net>
+* @version 04-03-07
+* @package MailZu
+*/
+/***************************************
+* MailZu    	                       *
+* Version 0.8                          *
+* http://www.mailzu.net 	       *
+*                                      *
+/***************************************/
+/**
+* Please refer to readme.html and LICENSE for any additional information
+*
+* Copyright (C) 2003 - 2007 MailZu 
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the 
+* Free Software Foundation; either version 2 of the License, or (at your option) 
+* any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT 
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License along with 
+* this program; if not, write to the 
+* Free Software Foundation, Inc.
+* 59 Temple Place
+* Suite 330
+* Boston, MA
+* 02111-1307
+* USA
+*/
+
+/*************************************************/
+/*                Instructions                   *
+**************************************************
+* + All words (string values) must               *
+*  be enclosed in quotation marks                *
+*  Numbers must not                              *
+*                                                *
+* + Default values are                           *
+*  given in square brackets []                   *
+/*************************************************/
+
+/**********
+* Amavisd-new Settings
+*
+* The following settings must correspond to your amavisd-new setup
+* 
+*
+***********/
+
+// Amavisd-new AM.PDP port
+// Since the port number can not be stored in the database
+// all instances of amavisd-new must use the same AM.PDP port 
+$conf['amavisd']['spam_release_port'] = '9998';
+
+// Database type to be used by PEAR [mysql]
+/* Options are:
+	mysql  -> MySQL
+	pgsql  -> PostgreSQL
+	ibase  -> InterBase
+	msql   -> Mini SQL
+	mssql  -> Microsoft SQL Server
+	oci8   -> Oracle 7/8/8i
+	odbc   -> ODBC (Open Database Connectivity)
+	sybase -> SyBase
+	ifx    -> Informix
+	fbsql  -> FrontBase
+*/
+$conf['db']['dbType'] = 'mysql';
+
+// Database user who can access the amavisd database
+$conf['db']['dbUser'] = 'user';
+
+// Password for above user to access the amavisd database
+$conf['db']['dbPass'] = 'pass';
+
+// Name of database
+$conf['db']['dbName'] = 'dbname';
+
+// Database host specification (hostname[:port]) [localhost]
+$conf['db']['hostSpec'] = 'hostname.example.com:3306';
+
+// If using the bytea or BLOB mail_text quarantine type set to
+// True. Since amavisd-2.4.4.
+$conf['db']['binquar'] = false;
+
+/**********
+* Authentication Settings
+*
+* Choose your authentication method ($conf['auth']['serverType']),
+* Then fill in the necessary auth information for corresponding method
+*
+***********/
+// Available authentication methods
+/* Options are:
+	ldap -> Standard LDAP server, e.g. OpenLDAP
+	ad   -> MS Active Directory
+	sql  -> PHP PEAR compatible database
+	exchange  -> MS Exchange 5.5
+	imap  -> IMAP protocol
+*/
+$conf['auth']['serverType'] = 'ldap';
+
+
+/*** LDAP Authentication Settings ***/
+// List of LDAP servers
+$conf['auth']['ldap_hosts'] = array( 'ldaphost.example.com' );
+// if set to true, LDAP connection over SSL (PHP 4.0.4 minimum)
+// if set to false or not set, unencrypted LDAP connection on port 389
+$conf['auth']['ldap_ssl'] = false;
+
+// LDAP base dn, e.g. 'dc=example,dc=com'
+$conf['auth']['ldap_basedn'] = 'dc=example,dc=org';
+
+// LDAP attribute used for the RDN to identify a person
+// For instance if the DN for a given user is uid=joesmith,ou=people,dc=example,dc=com
+// the attribute would be 'uid'
+$conf['auth']['ldap_user_identifier'] = 'uid';
+
+// Container where all users are kept, e.g. 'ou=people'
+// If you have users in multiple containers, leave this option blank.
+// In this particular case you will need to allow anonymous binding
+// or specify a search user/password to bind with
+//$conf['auth']['ldap_user_container'] = 'ou=people';
+$conf['auth']['ldap_user_container'] = '';
+
+// LDAP attribute used as login, e.g. 'uid', 'mail' or 'uidNumber'
+$conf['auth']['ldap_login'] = 'uid';
+
+// LDAP attribute used as name for the welcome message, e.g. 'givenName', 'cn' or 'displayName'
+$conf['auth']['ldap_name'] = 'givenName';
+
+// LDAP mail attribute(s) used as the final recipient address
+// Could be the actual mail attribute or another attribute
+// (in the latter case look for the "%m" token in the ldap query filter in amavisd.conf)
+$conf['auth']['ldap_mailAttr'] = array('mailRoutingAddress');
+
+// If $conf['auth']['ldap_login'] is different from 'uid', we need to determine
+// corresponding 'uid' by binding anonymously or with the user defined below.
+// Leave blank for anonymous binding.
+$conf['auth']['ldap_searchUser'] = '';
+$conf['auth']['ldap_searchPassword'] = '';
+
+
+/*** Active Directory Authentication Settings ***/
+// List of AD Domain controllers 
+$conf['auth']['ad_hosts'] = array( 'dc1.example.com' );
+// if set to true, LDAP connection over SSL (PHP 4.0.4 minimum)
+// if set to false or not set, unencrypted LDAP connection on port 389
+$conf['auth']['ad_ssl'] = false;
+
+// AD base dn, e.g. 'dc=example,dc=com'
+$conf['auth']['ad_basedn'] = 'dc=example,dc=com';
+
+// AD domain, e.g. 'example.com'
+$conf['auth']['ad_domain'] = 'example.com';
+
+// AD attribute used to identify a person
+$conf['auth']['ad_user_identifier'] = 'samaccoutname';
+
+// AD attribute used as login, e.g. 'samaccountname' or 'mail'
+$conf['auth']['ad_login'] = 'samaccountname';
+
+// AD attribute used as name for the welcome message, e.g. 'givenName', 'cn' or 'displayName'
+$conf['auth']['ad_name'] = 'givenName';
+
+// AD mail attribute(s) used as the final recipient address
+// Could be the actual mail attribute or another attribute
+// (in the latter case look for the "%m" token in the ldap query filter in amavisd.conf)
+// $conf['auth']['ad_mailAttr'] = array('mail'); // old
+// For accounts with multiple email address aliases use proxyAddresses
+$conf['auth']['ad_mailAttr'] = array('proxyAddresses');
+
+// If $conf['auth']['ad_login'] is different from 'samaccountname', we need to determine
+// corresponding 'samaccountname' by binding with the user defined below.
+// Ad does not support anonymous bind
+$conf['auth']['ad_searchUser'] = 'manager';
+$conf['auth']['ad_searchPassword'] = 'secret';
+
+
+/*** Database Authentication Settings ***/
+// Database type to be used by PEAR
+/* Options are:
+	mysql  -> MySQL
+	pgsql  -> PostgreSQL
+	ibase  -> InterBase
+	msql   -> Mini SQL
+	mssql  -> Microsoft SQL Server
+	oci8   -> Oracle 7/8/8i
+	odbc   -> ODBC (Open Database Connectivity)
+	sybase -> SyBase
+	ifx    -> Informix
+	fbsql  -> FrontBase
+*/
+$conf['auth']['dbType'] = 'mysql';
+
+// Database host specification (hostname[:port]) [localhost]
+$conf['auth']['dbHostSpec'] = '';
+
+// Database user who can access the auth database
+$conf['auth']['dbUser'] = '';
+
+// Password for above user to auth database
+$conf['auth']['dbPass'] = '';
+
+// Name for auth database
+$conf['auth']['dbName'] = '';
+
+// Name for auth table that contains usernames and passwords
+$conf['auth']['dbTable'] = '';
+
+// Name of the Username field of the SQL table
+$conf['auth']['dbTableUsername'] = '';
+
+// Name of the password field of the SQL table
+$conf['auth']['dbTablePassword'] = '';
+
+// Name of the 'first name' or 'full name' field of the SQL table
+// This is used for the welcome message
+// If such a field does not exist, leave it blank
+$conf['auth']['dbTableName'] = '';
+
+// Name of the 'mail address' field of the SQL table
+$conf['auth']['dbTableMail'] = '';
+
+// Hash configuration
+// true   = passwords are md5 encrypted in database
+// false  = passwords are cleartext in database
+$conf['auth']['dbIsMd5'] = true;
+
+
+/*** Exchange 5.5 Authentication Settings ***/
+// Exchange 5.5 server host and IMAP port (e.g.: 10.1.1.20:143)
+$conf['auth']['exch_host'] = '';
+
+// Exchange's LDAP server, it usually has the same IP as the Exchange server (e.g.: ldap://10.1.1.20)
+$conf['auth']['exch_ldap'] = '';
+
+// Exchange default NT domain
+$conf['auth']['exch_domain'] = '';
+
+
+/*** IMAP Authentication Settings ***/
+// List of IMAP servers and ports (e.g.: 10.1.1.20:143)
+$conf['auth']['imap_hosts'] = array( 'imaphost.example.com:143' );
+
+// IMAP type
+/* Options are:
+	imap	 -> default
+	imaptls  -> do not do start-TLS to encrypt the session, even with servers that support it
+	imapssl  -> use the Secure Socket Layer to encrypt the session
+	imapcert -> use the Secure Socket Layer to encrypt the session,
+		    do not validate certificates from TLS/SSL server, needed if server uses self-signed certificates
+*/
+$conf['auth']['imap_type'] = 'imapssl';
+
+// Domain name part of the email address, (e.g.: example.com)
+$conf['auth']['imap_domain_name'] = 'example.com';
+
+
+/**
+* End of Authentication Settings
+*/
+
+/*** Permission listings ****/
+/* The items you put in the admin lists
+*  must be the same as the login ID.
+*  Example:
+*  If you login as 'userid' then..
+*  conf['auth']['s_admins'] = array ('userid','userid2');
+*
+*  OR
+*
+*  If you login as 'userid@example.com' then...
+*  conf['auth']['s_admins'] = array ('userid@example.com',
+*				     'userid2@example.com'
+*				    );
+*
+*/
+
+// List of Super Admins
+// Super Admins can do anything mail admins can plus
+// change settings
+$conf['auth']['s_admins'] = array ('user1', 'user2');
+
+// List of Mail Admins
+// Mail Admins can see other users' spam and attachments
+// and can perform any action on them
+$conf['auth']['m_admins'] = array ();
+
+// User login restriction (Does not affect admins)
+// If set to true, users will not be able to login. This is if you do
+// not want users to view their quarantine, yet only have admins to
+// view quarantines. 
+$conf['auth']['login_restriction'] = false;
+
+// User restriction exemption
+// List of users still allowed to login even if
+// $conf['auth']['login_restriction'] = true
+//
+$conf['auth']['restricted_users'] = array('user1', 'user2');
+
+/**********
+* Miscellaneous Settings
+*
+* The following settings must correspond to your amavisd-new setup
+*
+***********/
+
+// Image to appear at the top of each page ['img/mailzu.gif']
+// Leave this string empty if you are not going to use an image
+// Specifiy link as 'directory/filename.gif'
+$conf['ui']['logoImage'] = 'img/mailzu.gif';
+
+// Welcome message show at login page ['Welcome to MailZu!']
+$conf['ui']['welcome'] = 'Welcome to MailZu!';
+
+// The full url to the root directory of MailZu
+// Please do not include the trailing slash
+$conf['app']['weburi'] = 'https://mailzuhost.example.com/mailzu';
+
+// How to send email ['mail']
+/* Options are:
+        'mail' for PHP default mail
+        'smtp' for SMTP
+        'sendmail' for sendmail
+        'qmail' for qmail MTA
+*/
+$conf['app']['emailType'] = 'mail';
+
+// SMTP email host address []
+// This is only required if emailType is SMTP
+$conf['app']['smtpHost'] = '';
+
+// SMTP port [25]
+// This is only required if emailType is SMTP
+$conf['app']['smtpPort'] = 25;
+
+// Path to sendmail ['/usr/sbin/sendmail']
+// This only needs to be set if the emailType is 'sendmail'
+$conf['app']['sendmailPath'] = '/usr/sbin/sendmail';
+
+// Path to qmail ['/var/qmail/bin/sendmail']
+// This only needs to be set if the emailType is 'qmail'
+$conf['app']['qmailPath'] = '/var/qmail/bin/sendmail';
+
+// Support for recipient delimiters
+// Enter the character used as a delimiter for your site
+// or leave empty
+// $conf['recipient_delimiter'] = '+';
+$conf['recipient_delimiter'] = '';
+
+// The email addresses of the support staff and/or administrator
+// An email is sent to these addresses when a user reports an error
+// or clicks the "Email Administrator" link
+$conf['app']['adminEmail'] = array('support@example.com');
+
+// Email admin upon Release Request
+// When users try to release a banned file a request is sent to an
+// admin. Admins can always look at 'Pending Requests' in the MailZu
+// interface regardless. 
+//
+// $conf['app']['notifyAdmin'] = 1;
+$conf['app']['notifyAdmin'] = 0;
+
+// Show the "Email Administrator" link for users
+// If you have a large userbase, you may not want users to have the
+// capability to just email the admin
+// Note: The "Report Error" link is still available regardless
+// of this option. This link is only visible if a fatal error occurs
+// with releasing attachments. Default is 1 (show link).
+//
+// $conf['app']['showEmailAdmin'] = 0;
+$conf['app']['showEmailAdmin'] = 1;
+
+// Site Quarantine Summary display toggle.
+// Enable and display the "Site Quarantine Summary" link for admins.
+// Viewing the site summary may be an expensive database query.
+// Large sites may want to turn this off.
+// $conf['app']['siteSummary'] = 1
+$conf['app']['siteSummary'] = 1;
+
+// Show Site Quarantine in search only mode if set to 1.
+// No message is displayed when clicking on 'Site quarantine'.
+// Keep the default for for large sites.
+// $conf['app']['searchOnly'] = 1
+$conf['app']['searchOnly'] = 1;
+
+// The default language code.  This must be included in the language list in
+// langs.php
+$conf['app']['defaultLanguage'] = 'en_US';
+
+// Display the choice for language selection during the login screen if set to 1       
+// Otherwise set it to 0
+// Default is 1
+$conf['app']['selectLanguage'] = '1';
+
+// If you are running PHP in safe mode, set this value to 1.
+// This toggles if we use the included Pear DB and Mail_Mime libraries included
+// with this distribution
+$conf['app']['safeMode'] = 0;
+
+// View time in 12 or 24 hour format [12]
+// Only acceptable values are 12 and 24 (if an invalid number is set, 12 hour
+// time will be used)
+$conf['app']['timeFormat'] = 12;
+
+// Title of application ['MailZu']
+// Will be used for page titles and in 'From' field of email responses
+$conf['app']['title'] = 'MailZu';
+
+// If we should log system activity or not [0]
+// Can be 0 (for no) and 1 (for yes)
+$conf['app']['use_log'] = 1;
+
+// If we should log additional debug information
+$conf['app']['debug'] = 0;
+
+// Directory/file for log ['/var/log/mailzu.log']
+// Specify as /directory/filename.extension
+$conf['app']['logfile'] = '/var/log/mailzu.log';
+
+// Maximum number of messages displayed per page
+$conf['app']['displaySizeLimit'] = 50;
+
+// Allow users to view quarantined Bad Header messages
+// Bad headers are treated like spam and released
+// $conf['app']['allowBadHeaders'] = 0
+$conf['app']['allowBadHeaders'] = 0;
+
+// Allow users to view quarantined Viruses (Dangerous)
+// Virues are treated like Banned files and are placed 
+// in the Pending Requests and require Admin release
+// $conf['app']['allowViruses'] = 0
+$conf['app']['allowViruses'] = 0;
+
+// Allow users to search by Mailid
+// $conf['app']['allowMailid'] = 0
+$conf['app']['allowMailid'] = 0;
+
+include_once('init.php');
+?>

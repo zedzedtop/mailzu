@@ -1,0 +1,34 @@
+Index: lib/DBEngine.class.php
+===================================================================
+--- lib/DBEngine.class.php	(revision 176)
++++ lib/DBEngine.class.php	(working copy)
+@@ -316,11 +316,18 @@
+ 		$msg_status = $cur_msg_array[0];
+ 		if ($msg_status['rs'] == 'p' && $flag == 'v') return true;
+ 
++		$query0 = 'SELECT id FROM maddr WHERE email=?';
++		$values0 = array($mail_rcpt);
++		$q0 = $this->db->prepare($query0);
++		$result0 = $this->db->execute($q0, $values0);
++          	$rs0 = $result0->fetchRow();
++		$id = $rs0['id'];
++
+ 		$query = 'UPDATE msgrcpt SET rs=?'
+                         	. ' WHERE mail_id=?'
+-				. ' AND rid=(SELECT id FROM maddr WHERE email=?)';
++				. ' AND rid=?';
+ 
+-		$values = array($flag, $mail_id, $mail_rcpt);
++		$values = array($flag, $mail_id, $id);
+ 
+ 		// Prepare query
+ 		$q = $this->db->prepare($query);
+@@ -329,6 +336,8 @@
+ 		// Check if error
+ 		$this->check_for_error($result, $query);
+ 
++		$result0->free();
++
+ 		return true;
+ 	}
+ 
