@@ -235,7 +235,7 @@ class DBEngine {
 		$recipEmailClause =  $this->convertEmailaddresses2SQL($emailaddresses);
 
 		# mysql seems to run faster with a left join
-		if ($conf['db']['dbtype'] == 'mysql') {
+		if ($conf['db']['dbType'] == 'mysql') {
 			$join_type = ' LEFT JOIN';
 		} else {
 			$join_type = ' INNER JOIN';
