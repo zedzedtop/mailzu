@@ -34,7 +34,7 @@ include_once('lib/PHPMailer.class.php');
 * Release messages function
 * @param array $emailaddresses recipient email address(es)
 * @param array $mail_id_array containing mail_id of messages to be released
-* @result return array of messages whose release failed 
+* @result return array of messages whose release failed
 */
 function releaseMessages($emailaddresses, $mail_id_array) {
 
@@ -61,7 +61,7 @@ function releaseMessages($emailaddresses, $mail_id_array) {
 	$result = $db->db->autoCommit(false);
 	$db->check_for_error($result, 'PEAR DB autoCommit(false)');
 
-	// Fill the arrays	
+	// Fill the arrays
 	foreach ($mail_id_array as $mail_id_recip) {
 
 		// Get mail_id and recipient email address
@@ -100,7 +100,7 @@ function releaseMessages($emailaddresses, $mail_id_array) {
 
 		// Other cases where:
 		//	- content type is 'B' or 'V' but the logged in user is admin, therefore allowed to release message
-		//	- content type is 'S' or 'H'	
+		//	- content type is 'S' or 'H'
 		} else {
 			// add message to be released to $hosts array
 			$release_messages[ $mail_id_recip ] = array(
@@ -129,7 +129,7 @@ function releaseMessages($emailaddresses, $mail_id_array) {
 	// If release needs to be done
 	if ( is_array($hosts) && !empty($hosts) ) {
 
-		// For each host create socket, connect and release all messages pertaining to that host	
+		// For each host create socket, connect and release all messages pertaining to that host
 		foreach ($hosts as $host => $message_info ) {
 
 			// Create new TCP/IP socket and try to connect to $host using this socket
@@ -141,7 +141,7 @@ function releaseMessages($emailaddresses, $mail_id_array) {
 					$release_messages[ $mail_id_recip ][ 'status' ] = $am->last_error;
 					$nb_failure++;
 				}
-			else { 
+			else {
 				foreach ($message_info as $mail_id_recip => $release_info) {
 					$socket_binding_result 	=	$am->release_message(
 						$release_messages[ $mail_id_recip ][ 'mail_id' ],
@@ -186,7 +186,7 @@ function releaseMessages($emailaddresses, $mail_id_array) {
 	$i = 0;
 
 	if ( $nb_failure > 0 ) {
-	
+
 		foreach ($mail_id_array as $mail_id_recip) {
 
 			if ($release_messages[ $mail_id_recip ][ 'error_code' ] != 0) {
@@ -217,7 +217,7 @@ function releaseMessages($emailaddresses, $mail_id_array) {
 * @param array $emailaddresses recipient email address(es)
 * @param array $mail_id_array containing mail_id of messages to be deleted
 * @param bool $all false (default) or true, if true all messages will be deleted
-* @result return array of messages whose release failed 
+* @result return array of messages whose release failed
 */
 function updateMessages($flag, $content_type, $emailaddresses, $mail_id_array, $all = false) {
 

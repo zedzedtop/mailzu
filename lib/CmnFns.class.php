@@ -13,7 +13,7 @@
 *	formatTime(), formatDate(), formatDateTime(), minutes_to_hours(), getScriptURL(),
 *	do_error_box(), do_message_box(), getNewLink(), getNewPager(), cleanPostVals(),
 *	get_vert_order(), get_value_order(), write_log(), get_day_name(), redirect(),
-*	print_language_pulldown(), html_activate_links() 
+*	print_language_pulldown(), html_activate_links()
 *
 * Copyright (C) 2005 - 2007 MailZu
 * License: GPL, see LICENSE
@@ -47,7 +47,6 @@ include_once('Pager.class.php');
 * Provides functions common to most pages
 */
 class CmnFns {
-	
 	/**
 	* Convert minutes to hours
 	* @param double $time time to convert in minutes
@@ -55,39 +54,38 @@ class CmnFns {
 	*/
 	function formatTime($time) {
 		global $conf;
-		
+
 		// Set up time array with $timeArray[0]=hour, $timeArray[1]=minute
 		// If time does not contain decimal point
 		// then set time array manually
 		// else explode on the decimal point
 		$hour = intval($time / 60);
 		$min = $time % 60;
-		if ($conf['app']['timeFormat'] == 24) {			
-			$a = '';									// AM/PM does not exist
+		if ($conf['app']['timeFormat'] == 24) {
+			$a = '';				// AM/PM does not exist
 			if ($hour < 10) $hour = '0' . $hour;
 		}
-		else {		
-			$a = ($hour < 12 || $hour == 24) ? translate('am') : translate('pm');			// Set am/pm		
-			if ($hour > 12) $hour = $hour - 12;			// Take out of 24hr clock
-			if ($hour == 0) $hour = 12;					// Don't show 0hr, show 12 am	
+		else {
+			$a = ($hour < 12 || $hour == 24) ? translate('am') : translate('pm');	// Set am/pm
+			if ($hour > 12) $hour = $hour - 12;	// Take out of 24hr clock
+			if ($hour == 0) $hour = 12;		// Don't show 0hr, show 12 am
 		}
 		// Set proper minutes (the same for 12/24 format)
 		if ($min < 10) $min = 0 . $min;
 		// Put into a string and return
 		return $hour . ':' . $min . $a;
 	}
-	
+
 	/**
 	* Convert ISO8601 date to date format
 	* @param string $date string (yyyy-mm-dd)
 	* @return int timestamp
 	*/
 	function formatDateISO($date) {
-
 		$time = strtotime($date);
 		return $time;
 	}
-	
+
 	/**
 	* Convert timestamp to date format
 	* @param string $date timestamp
@@ -96,12 +94,11 @@ class CmnFns {
 	*/
 	function formatDate($date, $format = '') {
 		global $dates;
-		
+
 		if (empty($format)) $format = $dates['general_date'];
 		return strftime($format, $date);
 	}
-	
-	
+
 	/**
 	* Convert UNIX timestamp to datetime format
 	* @param string $ts MySQL timestamp
@@ -111,13 +108,12 @@ class CmnFns {
 	function formatDateTime($ts, $format = '') {
 		global $conf;
 		global $dates;
-		
+
 		if (empty($format))
 			$format = $dates['general_datetime'] . ' ' . (($conf['app']['timeFormat'] ==24) ? '%H' : '%I') . ':%M:%S' . (($conf['app']['timeFormat'] == 24) ? '' : ' %p');
 		return strftime($format, $ts);
 	}
-	
-	
+
 	/**
 	* Convert minutes to hours/minutes
 	* @param int $minutes minutes to convert
@@ -126,12 +122,12 @@ class CmnFns {
 	function minutes_to_hours($minutes) {
 		if ($minutes == 0)
 			return '0 ' . translate('hours');
-			
+
 		$hours = (intval($minutes / 60) != 0) ? intval($minutes / 60) . ' ' . translate('hours') : '';
 		$min = (intval($minutes % 60) != 0) ? intval($minutes % 60) . ' ' . translate('minutes') : '';
 		return ($hours . ' ' . $min);
 	}
-	
+
 	/**
 	* Return the current script URL directory
 	* @param none
@@ -142,8 +138,7 @@ class CmnFns {
 		$uri = $conf['app']['weburi'];
 		return (strrpos($uri, '/') === false) ? $uri : substr($uri, 0, strlen($uri));
 	}
-	
-	
+
 	/**
 	* Prints an error message box and kills the app
 	* @param string $msg error message to print
@@ -152,20 +147,20 @@ class CmnFns {
 	*/
 	function do_error_box($msg, $style='', $die = true) {
 		global $conf;
-		
+
 		echo '<table border="0" cellspacing="0" cellpadding="0" align="center" class="alert" style="' . $style . '"><tr><td>' . $msg . '</td></tr></table>';
 
 		if ($die) {
 			echo '</td></tr></table>';		// endMain() in Template
 			echo '<p align="center"><a href="http://www.mailzu.net">' . $conf['app']['title'] .' v' . $conf['app']['version'] . '</a></p></body></html>';	// printHTMLFooter() in Template
-		
+
 			//$t = new Template();
 			//$t->endMain();
 			//$t->printHTMLFooter();
 		 	die();
 		}
 	}
-	
+
 	/**
 	* Prints out a box with notification message
 	* @param string $msg message to print out
@@ -174,7 +169,7 @@ class CmnFns {
 	function do_message_box($msg, $style='') {
 		echo '<table border="0" cellspacing="0" cellpadding="0" align="center" class="message" style="' . $style . '"><tr><td>' . $msg . '</td></tr></table>';
 	}
-	
+
 	/**
 	* Returns a reference to a new Link object
 	* Used to make HTML links
@@ -184,7 +179,7 @@ class CmnFns {
 	function getNewLink() {
 		return new Link();
 	}
-	
+
 	/**
 	* Returns a reference to a new Pager object
 	* Used to iterate over limited recordesets
@@ -194,35 +189,35 @@ class CmnFns {
 	function getNewPager() {
 		return new Pager();
 	}
-	
+
 	/**
 	* Strip out slahses from POST values
 	* @param none
 	* @return array of cleaned up POST values
 	*/
 	function cleanPostVals() {
-		$return = array();
-		
+		$rval = array();
+
 		foreach ($_POST as $key => $val)
-			$return[$key] = stripslashes(trim($val));
-		
-		return $return;
+			$rval[$key] = stripslashes(trim($val));
+
+		return $rval;
 	}
-	
+
 	/**
 	* Strip out slahses from an array of data
 	* @param none
 	* @return array of cleaned up data
 	*/
 	function cleanVals($data) {
-		$return = array();
-		
+		$rval = array();
+
 		foreach ($data as $key => $val)
-			$return[$key] = stripslashes($val);
-		
-		return $return;
+			$rval[$key] = stripslashes($val);
+
+		return $rval;
 	}
-	
+
 	/**
 	* Verifies vertical order and returns value
 	* @param string $vert value of vertical order
@@ -231,20 +226,20 @@ class CmnFns {
 	function get_vert_order($get_name = 'vert') {
 		// If no vertical value is specified, use DESC
 		$vert = isset($_GET[$get_name]) ? $_GET[$get_name] : 'DESC';
-	    
+
 		// Validate vert value, default to DESC if invalid
 		switch($vert) {
 			case 'DESC';
 			case 'ASC';
-			break;
+				break;
 			default :
 				$vert = 'DESC';
-			break;
+				break;
 		}
-		
+
 		return $vert;
 	}
-	
+
 	/**
 	* Verifies and returns the order to list recordset results by
 	* If none of the values are valid, it will return the 1st element in the array
@@ -254,20 +249,19 @@ class CmnFns {
 	function get_value_order($orders = array(), $get_name = 'order') {
 		if (empty($orders))		// Return null if the order array is empty
 			return NULL;
-			
+
 		// Set default order value
 		// If a value is specifed in GET, use that.  Else use the first element in the array
 		$order = isset($_GET[$get_name]) ? $_GET[$get_name] : $orders[0];
-		
+
 		if (in_array($order, $orders))
 			$order = $order;
 		else
 			$order = $orders[0];
-	
+
 		return $order;
 	}
-	
-	
+
 	/**
 	* Opposite of php's nl2br function.
 	* Subs in a newline for all brs
@@ -277,7 +271,7 @@ class CmnFns {
 	function br2nl($subject) {
 		return str_replace('<br />', "\n", $subject);
 	}
-	
+
 	/**
 	* Writes a log string to the log file specified in config.php
 	* @param string $string log entry to write to file
@@ -290,30 +284,30 @@ class CmnFns {
 		$file = $conf['app']['logfile'];
 		$values = '';
 
-		if (!$conf['app']['use_log'])	// Return if we aren't going to log
+		if (!$conf['app']['use_log'])		// Return if we aren't going to log
 			return;
-		
+
 		if (empty($ip))
 			$ip = $_SERVER['REMOTE_ADDR'];
-		
-		clearstatcache();				// Clear cached results
-		
+
+		clearstatcache();			// Clear cached results
+
 		if (!is_dir(dirname($file)))
-			mkdir(dirname($file), 0777);		// Create the directory
-		
+			mkdir(dirname($file), 0777);	// Create the directory
+
 		if (!touch($file))
-			return;					// Return if we cant touch the file
-			
+			return;				// Return if we cant touch the file
+
 		if (!$fp = fopen($file, 'a'))
-			return;					// Return if the fopen fails
-		
-		flock($fp, LOCK_EX);		// Lock file for writing
+			return;				// Return if the fopen fails
+
+		flock($fp, LOCK_EX);			// Lock file for writing
 		if (!fwrite($fp, '[' . date('D, d M Y H:i:s') . ']' . $delim . $ip . $delim . $userid . $delim . $string . "\r\n"))	// Write log entry
         	return;					// Return if we cant write to the file
-		flock($fp, LOCK_UN);		// Unlock file
+		flock($fp, LOCK_UN);			// Unlock file
 		fclose($fp);
 	}
-	
+
 	/**
 	* Returns the day name
 	* @param int $day_of_week day of the week
@@ -334,7 +328,7 @@ class CmnFns {
 			array ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat')
 			*/
 			);
-		
+
 		return $names[$type][$day_of_week];
 	}
 
@@ -342,12 +336,12 @@ class CmnFns {
 	* Redirects a user to a new location
 	* @param string $location new http location
 	* @param int $time time in seconds to wait before redirect
-	*/ 
+	*/
 	function redirect($location, $time = 0, $die = true) {
 		header("Refresh: $time; URL=$location");
 		if ($die) exit;
 	}
-	
+
 	/**
 	* Prints out the HTML to choose a language
 	* @param none
@@ -367,7 +361,7 @@ class CmnFns {
 		</select>
 		<?php
 	}
-	
+
 	/**
 	* Searches the input string and creates links out of any properly formatted 'URL-like' text
 	* Written by Fredrik Kristiansen (russlndr at online.no)
@@ -382,7 +376,6 @@ class CmnFns {
 		return $str;
 	}
 
- 
 	/**
 	* Verifies current page number and returns value
 	* @param integer $page value of current page number
@@ -393,7 +386,7 @@ class CmnFns {
 		$page = ( isset($_GET[$get_name]) && is_numeric($_GET[$get_name]) )  ? $_GET[$get_name] : 0;
 		return $page;
 	}
-	
+
 	/**
         * Gets the requested mail_id
         * @param none
@@ -404,7 +397,7 @@ class CmnFns {
                 $mail_id = (isset($_GET[$get_name])) ? $_GET[$get_name] : NULL;
                 return $mail_id;
         }
-	
+
 	/**
 	* Verifies and returns the order to list recordset results by
 	/**
@@ -504,7 +497,7 @@ class CmnFns {
 	function searchEngine($content_type, $submit_page, $full_search = false) {
 		global $conf;
 
-		$fields_array = array("f" => translate('From'), 
+		$fields_array = array("f" => translate('From'),
 				      "s" => translate('Subject')
 				     );
 		if (Auth::isMailAdmin() || $conf['app']['allowMailid']) {
@@ -512,10 +505,9 @@ class CmnFns {
 		}
 		if ($full_search) $fields_array = array_merge(array("t" => translate('To')), $fields_array);
 
-		?>	
+		?>
 		<table border=0 width="100%">
 		<form action="<?php echo $submit_page ?>" method="get" name="quarantine">
-
 			<tr><td colspan=2 align="center"><?php echo translate('Search for messages whose:'); ?>&nbsp;</td></tr>
 			<tr><td align="right">&nbsp;
 		<?php
@@ -554,7 +546,7 @@ class CmnFns {
 			<?php if (Auth::isMailAdmin() || $conf['app']['allowViruses']) { ?>
 					<option value="V" <?php echo ($content_type == 'V' ?  ' selected="true"':''); ?>>
 					<?php echo translate('Virus'); ?></option>
-			<?php } 
+			<?php }
 				 if (Auth::isMailAdmin() || $conf['app']['allowBadHeaders']) { ?>
 					<option value="H" <?php echo ($content_type == 'H' ?  ' selected="true"':''); ?>>
 					<?php echo translate('Bad Header'); ?></option>
@@ -564,7 +556,7 @@ class CmnFns {
 			echo ($i % 2) ? "&nbsp;</td></tr>\n\t\t\t<tr><td colspan='2' align='center'>&nbsp\n" : "&nbsp;</td><td align='left'>&nbsp";
 			?>
 			<input type="submit" class="button" name="search_action" value="<?php echo translate('Search'); ?>" />
-			<?php if (CmnFns::didSearch()) 
+			<?php if (CmnFns::didSearch())
 				echo "<input type=\"submit\" class=\"button\" name=\"search_action\" value=\"" . translate('Clear search results') . "\" />";
 			?>
 			&nbsp;</td></tr>
@@ -595,7 +587,7 @@ class CmnFns {
 	*/
 	function querystring_exclude_vars( $excl_array = array() ) {
 		return CmnFns::array_to_query_string( $_GET, $excl_array );
-	}	
+	}
 
 	/**
         * Gets the 'ctype' value
@@ -634,7 +626,6 @@ class CmnFns {
                 return $result;
         }
 
-
 	/*
  	* Search for the var $name in $_SESSION, $_POST, $_GET,
  	* $_SERVER and set it in provided var.
@@ -657,36 +648,30 @@ class CmnFns {
  	* @return value of var
  	*/
         function getGlobalVar($name, $search = INORDER) {
-
 		switch ($search) {
-			
 			/* we want the default case to be first here,
            		so that if a valid value isn't specified,
            		all four arrays will be searched. */
 			default:
-
 			case INORDER: // check session, post, get
-
 			case SESSION:
 				if( isset($_SESSION[$name]) )
 					return $_SESSION[$name];
-				elseif ( $search == SESSION ) 
+				elseif ( $search == SESSION )
 					break;
-
+				// fall through
 			case FORM: // check post, get
-
 			case POST:
-				if( isset($_POST[$name]) ) 
+				if( isset($_POST[$name]) )
 					return $_POST[$name];
-				elseif ( $search == POST ) 
+				elseif ( $search == POST )
 					break;
-
+				// fall through
 			case GET:
 				if( isset($_GET[$name]) )
 					return $_GET[$name];
 				/* For INORDER case, exit after GET */
 				break;
-
 			case SERVER:
 				if( isset($_SERVER[$name]) )
 					return $_SERVER[$name];
@@ -700,9 +685,9 @@ class CmnFns {
 	* @param $location string
 	*/
 	function redirect_js($location) {
-		        echo "<SCRIPT LANGUAGE=\"JavaScript\">";
-                       	echo "parent.location.href = '" . $location . "';";
-        		echo "</SCRIPT>";
+		echo "<SCRIPT LANGUAGE=\"JavaScript\">";
+		echo "parent.location.href = '" . $location . "';";
+		echo "</SCRIPT>";
 	}
 }
 ?>

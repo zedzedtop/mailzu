@@ -6,7 +6,7 @@
 * @version 03-22-07
 * @package AmavisdEngine
 *
-* Copyright (C) 2005 - 2007 MailZu 
+* Copyright (C) 2005 - 2007 MailZu
 * License: GPL, see LICENSE
 */
 /**
@@ -37,11 +37,10 @@ else {
 */
 
 class AmavisdEngine {
-
-	var $socket;				// Reference to socket
-	var $port;					// Amavisd spam release port
+	var $socket;			// Reference to socket
+	var $port;			// Amavisd spam release port
 	var $connected; 		// Connection status
-	var $last_error;		// Last error message 
+	var $last_error;		// Last error message
 
 	/**
 	* AmavisdEngine object constructor
@@ -49,7 +48,6 @@ class AmavisdEngine {
 	* $return object Amavisd object
 	*/
 	function AmavisdEngine($host) {
-
 		$this->socket = new Net_Socket();
 		$this->port = $GLOBALS['conf']['amavisd']['spam_release_port'];
 		$this->connected = false;
@@ -79,10 +77,9 @@ class AmavisdEngine {
 	* @param $secret_id
 	* @param $recipient
 	* @result response
-  */
+	*/
 
 	function release_message($mail_id, $secret_id, $recipient, $quar_type, $quar_loc) {
-
 		if (! $this->connected) {
 			return $this->last_error;
 		}
@@ -120,8 +117,6 @@ class AmavisdEngine {
 		}
 
 		return $out;
-
 	}
 }
-
 ?>

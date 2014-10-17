@@ -21,7 +21,6 @@ include_once('lib/CmnFns.class.php');
 * Provide all database access/manipulation functionality for IMAP Auth
 */
 class IMAPAuth {
-
 	// The IMAP hosts with port (hostname[:port])
         var $imapHosts;
 	// IMAP authentication type
@@ -31,7 +30,7 @@ class IMAPAuth {
 	var $imapUsername;
 
 	var $err_msg = '';
-	
+
 	/**
 	* Constructor to initialize object
 	* @param none
@@ -44,7 +43,7 @@ class IMAPAuth {
 		$this->imapDomainName = $conf['auth']['imap_domain_name'];
 	}
 
-	// User methods -------------------------------------------	
+	// User methods -------------------------------------------
 
 	/**
 	* Authenticates user
@@ -60,26 +59,25 @@ class IMAPAuth {
 	   $this->imapUsername = $username;
 
     	   foreach ($this->imapHosts as $host) {                 // Try each host in turn
-
               $host = trim($host);
 
 	      switch ($this->imapType) {
        	         case "imapssl":
                     $host = '{'.$host."/imap/ssl}INBOX";
                     break;
-            
+
                  case "imapcert":
                     $host = '{'.$host."/imap/ssl/novalidate-cert}INBOX";
                     break;
-            
+
                  case "imaptls":
                     $host = '{'.$host."/imap/notls}INBOX";
                     break;
-            
+
                  default:
                     $host = '{'.$host.'}INBOX';
               }
-        
+
               //error_reporting(0);
               $connection = imap_open($host, $username, $password, OP_HALFOPEN);
 
@@ -88,11 +86,11 @@ class IMAPAuth {
                  return true;
               }
 	   }
-	
+
 	   $this->err_msg = translate('IMAP Authentication: no match');
        	   return false;  // No match
 	}
-	
+
 	/**
 	* Returns the last error message
 	* @param none
@@ -109,16 +107,12 @@ class IMAPAuth {
         * @return array containing user information
         */
 	function getUserData() {
-        	$return = array(
+        	$rval = array(
             			'logonName' => $this->imapUsername,
             			'firstName' => $this->imapUsername,
-            			'emailAddress' => array( $this->imapUsername.
-							( empty($this->imapDomainName) ? '' :
-							  '@'. $this->imapDomainName )
-						  )
+            			'emailAddress' => array($this->imapUsername.(empty($this->imapDomainName) ? '' : '@'. $this->imapDomainName))
         	);
-        	return $return;
+        	return $rval;
     	}
-
 }
 ?>

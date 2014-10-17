@@ -24,7 +24,7 @@ class Template {
 	var $title;
 	var $link;
 	var $dir_path;
-	
+
 	/**
 	* Set the page's title
 	* @param string $title title of page
@@ -32,13 +32,13 @@ class Template {
 	*/
 	function Template($title = '', $depth = 0) {
 		global $conf;
-		
+
 		$this->title = (!empty($title)) ? $title : $conf['ui']['welcome'];
 		$this->dir_path = str_repeat('../', $depth);
 		$this->link = CmnFns::getNewLink();
 		//Auth::Auth();	// Starts session
 	}
-	
+
 	/**
 	* Print all XHTML headers
 	* This function prints the HTML header code, CSS link, and JavaScript link
@@ -51,7 +51,7 @@ class Template {
 		global $languages;
 		global $lang;
 		global $charset;
-		
+
 		$path = $this->dir_path;
 		echo "<?xml version=\"1.0\" encoding=\"$charset\"?" . ">\n";
 	?>
@@ -73,8 +73,7 @@ class Template {
 	<body>
 	<?php
 	}
-	
-	
+
 	/**
 	* Print welcome header message
 	* This function prints out a table welcoming
@@ -86,7 +85,7 @@ class Template {
 	*/
 	function printWelcome() {
 		global $conf;
-		
+
 		// Print out logoImage if it exists
 		echo (!empty($conf['ui']['logoImage']))
 			? '<div align="left"><img src="' . $conf['ui']['logoImage'] . '" alt="logo" vspace="5" /></div>'
@@ -122,8 +121,7 @@ class Template {
 	</table>
 	<?php
 	}
-	
-	
+
 	/**
 	* Start main HTML table
 	* @param none
@@ -136,8 +134,7 @@ class Template {
 		<td bgcolor="#FAFAFA">
 		  <?php
 	}
-	
-	
+
 	/**
 	* End main HTML table
 	* @param none
@@ -149,8 +146,7 @@ class Template {
 	</table>
 	<?php
 	}
-	
-	
+
 	/**
 	* Print HTML footer
 	* This function prints out a tech email
@@ -165,7 +161,7 @@ class Template {
 	</html>
 	<?php
 	}
-	
+
 	/**
 	* Sets the link class variable to reference a new Link object
 	* @param none
@@ -173,16 +169,16 @@ class Template {
 	function set_link() {
 		$this->link = CmnFns::getNewLink();
 	}
-	
+
 	/**
 	* Returns the link object
 	* @param none
-	* @return link object for this class 
+	* @return link object for this class
 	*/
 	function get_link() {
 		return $this->link;
 	}
-	
+
 	/**
 	* Sets a new title for the template page
 	* @param string $title title of page
