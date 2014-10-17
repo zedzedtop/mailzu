@@ -17,7 +17,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 
 /**
 *	PEAR::Net_Socket Library

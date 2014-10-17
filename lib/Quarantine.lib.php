@@ -16,7 +16,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 /**
 * Include AmavisdEngine class
 */
@@ -123,8 +123,7 @@ function releaseMessages($emailaddresses, $mail_id_array) {
 	global $conf;
 
 	// If release request needs to be sent to Admins
-	if ( is_array($release_req_messages) && !empty($release_req_messages) 
-	  && $conf['app']['notifyAdmin'] )
+	if ( is_array($release_req_messages) && !empty($release_req_messages) && $conf['app']['notifyAdmin'] )
 		sendMailToAdmin(translate('Request release'), $release_req_messages);
 
 	// If release needs to be done
@@ -252,15 +251,14 @@ function updateMessages($flag, $content_type, $emailaddresses, $mail_id_array, $
 		}
 
 	} else {
-
 		$i = 0;
-
 		foreach ($mail_id_array as $mail_id_recip) {
-		
 			// Get mail_id and recipient email address
-			$temp = preg_split('/_/', $mail_id_recip, 2);
-			$mail_id = $temp[0];
-			$recip_email = $temp[1];
+			//$temp = preg_split('/_/', $mail_id_recip, 2);
+			//$mail_id = $temp[0];
+			//$recip_email = $temp[1];
+			$mail_id = substr($mail_id_recip, 0, 12);
+			$recip_email = substr($mail_id_recip, 13);
 
 			// Check if logged in user is admin or logged in user is trying to delete his own messages
 			if ( Auth::isMailAdmin() || in_array($recip_email, $emailaddresses) ) {

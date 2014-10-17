@@ -15,7 +15,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 
 /**
 * Provide all database access/manipulation functionality for IMAP Auth

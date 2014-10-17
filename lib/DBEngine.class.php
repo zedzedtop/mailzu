@@ -23,7 +23,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 /**
 * Auth class
 */
@@ -497,7 +497,7 @@ class DBEngine {
 		  $join_type = ' INNER JOIN';
 		}
 
-		$recipEmailClause =  $this->convertEmailaddresses2SQL($emailaddresses);
+		$recipEmailClause = $this->convertEmailaddresses2SQL($emailaddress);
 
 		$return = array();
 		
@@ -641,6 +641,7 @@ class DBEngine {
                 if ($result->numRows() <= 0){ 
                         return false;
                 }
+		$return = "";
                 while ($rs = $result->fetchRow()) {
                         $return .= $rs['mail_text'];
                 }

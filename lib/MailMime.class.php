@@ -15,7 +15,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 /**
 * Pear::DB
 */
@@ -91,13 +91,13 @@ function MsgParseBody($struct) {
                 break;
             }
             break;
-
           case "text":
             // Do not display attached text types
-            if ($attachment = $struct->d_parameters['filename'] or
-                  $attachment = $struct->d_parameters['name']) {
+	    if (property_exists($struct, "d_parameters")) {
+              if ($attachment = $struct->d_parameters['filename'] or $attachment = $struct->d_parameters['name']) {
                 array_push($filelist, $attachment);
                 break;
+            }
             }
             switch ($ctype_s) {
               // Plain text

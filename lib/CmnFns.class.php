@@ -356,7 +356,7 @@ class CmnFns {
 		global $conf;
 		?>
 		<select name="language" class="textbox" onchange="changeLanguage(this);">
-		<?
+		<?php
 			$languages = get_language_list();
 			foreach ($languages as $lang => $settings) {
 				echo '<option value="' . $lang . '"'
@@ -365,7 +365,7 @@ class CmnFns {
 			}
 		?>
 		</select>
-		<?
+		<?php
 	}
 	
 	/**
@@ -452,10 +452,10 @@ class CmnFns {
                		$query_string = CmnFns::array_to_query_string( $_GET, array( 'page' ) );
 			$query_string_first = $query_string . '&page=0';
                		$query_string_previous = $query_string . '&page=' . ($page-1);
-               		$pager_html .= $link->getLink($php_self . '?' . $query_string_first, translate('first'), '', '', translate('Go to first page')) . " | ";
+               		$pager_html = $link->getLink($php_self . '?' . $query_string_first, translate('first'), '', '', translate('Go to first page')) . " | ";
                		$pager_html .= $link->getLink($php_self . '?' . $query_string_previous, translate('previous'), '', '', translate('Go to previous page')) . " | ";
        		} else {
-               		$pager_html .= translate('first') . " | " . translate('previous') ." | ";
+               		$pager_html = translate('first') . " | " . translate('previous') ." | ";
        		}
 
        		$pager_html .= '&nbsp;&nbsp;';
@@ -466,7 +466,7 @@ class CmnFns {
 
 		for( $i=0; $i<$count; $i+=$sizeLimit ) {
                		$page_num = $i/$sizeLimit;
-               		if( $count > $size_limit * 20 && abs( $page_num - $page ) > 10 ) {
+               		if( $count > $sizeLimit * 20 && abs( $page_num - $page ) > 10 ) {
                        		if( ! $elipsis_printed ) {
                                		$pager_html .= '...&nbsp;&nbsp;';
                                		$elipsis_printed = true;
@@ -486,8 +486,8 @@ class CmnFns {
 
 		if( $page+1 < $total_pages )  {
                		$query_string = CmnFns::array_to_query_string( $_GET, array( 'page' ) );
-               		$query_string_next .= $query_string . '&page=' . ($page+1);
-               		$query_string_last .= $query_string . '&page=' . (ceil($total_pages)-1);
+               		$query_string_next = $query_string . '&page=' . ($page+1);
+               		$query_string_last = $query_string . '&page=' . (ceil($total_pages)-1);
                		$pager_html .= ' | ' . $link->getLink($php_self . '?' . $query_string_next, strtolower(translate('Next')), '', '', translate('Go to next page'));
                		$pager_html .= ' | ' . $link->getLink($php_self . '?' . $query_string_last, translate('last'), '', '', translate('Go to last page'));
        		} else {
@@ -514,11 +514,11 @@ class CmnFns {
 
 		?>	
 		<table border=0 width="100%">
-		<form action="<? echo $submit_page ?>" method="get" name="quarantine">
+		<form action="<?php echo $submit_page ?>" method="get" name="quarantine">
 
-			<tr><td colspan=2 align="center"><? echo translate('Search for messages whose:'); ?>&nbsp;</td></tr>
+			<tr><td colspan=2 align="center"><?php echo translate('Search for messages whose:'); ?>&nbsp;</td></tr>
 			<tr><td align="right">&nbsp;
-		<?
+		<?php
 			$i = 1;
 			$array_size = count($fields_array);
 			foreach ($fields_array as $k => $name) {
@@ -543,34 +543,34 @@ class CmnFns {
 				$i ++;
 			}
 		?>
-			<? echo translate('Content Type'); ?>:
+			<?php echo translate('Content Type'); ?>:
 			<select name="ctype" class="button">
-					<option value="A" <? echo ($content_type == 'A' ?  ' selected="true"':''); ?>>
-					<? echo translate('All'); ?></option>
-					<option value="S" <? echo ($content_type == 'S' ?  ' selected="true"':''); ?>>
-					<? echo translate('Spam'); ?></option>
-					<option value="B" <? echo ($content_type == 'B' ?  ' selected="true"':''); ?>>
-					<? echo translate('Banned'); ?></option>
-			<? if (Auth::isMailAdmin() || $conf['app']['allowViruses']) { ?>
-					<option value="V" <? echo ($content_type == 'V' ?  ' selected="true"':''); ?>>
-					<? echo translate('Virus'); ?></option>
-			<? } 
+					<option value="A" <?php echo ($content_type == 'A' ?  ' selected="true"':''); ?>>
+					<?php echo translate('All'); ?></option>
+					<option value="S" <?php echo ($content_type == 'S' ?  ' selected="true"':''); ?>>
+					<?php echo translate('Spam'); ?></option>
+					<option value="B" <?php echo ($content_type == 'B' ?  ' selected="true"':''); ?>>
+					<?php echo translate('Banned'); ?></option>
+			<?php if (Auth::isMailAdmin() || $conf['app']['allowViruses']) { ?>
+					<option value="V" <?php echo ($content_type == 'V' ?  ' selected="true"':''); ?>>
+					<?php echo translate('Virus'); ?></option>
+			<?php } 
 				 if (Auth::isMailAdmin() || $conf['app']['allowBadHeaders']) { ?>
-					<option value="H" <? echo ($content_type == 'H' ?  ' selected="true"':''); ?>>
-					<? echo translate('Bad Header'); ?></option>				
-			<? }
+					<option value="H" <?php echo ($content_type == 'H' ?  ' selected="true"':''); ?>>
+					<?php echo translate('Bad Header'); ?></option>
+			<?php }
 			echo "</select>";
 			$i ++;
 			echo ($i % 2) ? "&nbsp;</td></tr>\n\t\t\t<tr><td colspan='2' align='center'>&nbsp\n" : "&nbsp;</td><td align='left'>&nbsp";
 			?>
-			<input type="submit" class="button" name="search_action" value="<? echo translate('Search'); ?>" />
-			<? if (CmnFns::didSearch()) 
+			<input type="submit" class="button" name="search_action" value="<?php echo translate('Search'); ?>" />
+			<?php if (CmnFns::didSearch()) 
 				echo "<input type=\"submit\" class=\"button\" name=\"search_action\" value=\"" . translate('Clear search results') . "\" />";
 			?>
 			&nbsp;</td></tr>
 		</form>
 		</table>
-		<?
+		<?php
 
 	}
 

@@ -19,7 +19,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 /**
 * Pear::DB
 */
