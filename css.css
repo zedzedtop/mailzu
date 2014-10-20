@@ -127,14 +127,16 @@ Alternating row colors
 Got rid of the contextual selector '.cellColor0 td'
 */
 .cellColor0, td.cellColor0 {
+	font-family: monospace;
     padding: 2px;
     background-color: #FFFFFF;
-    font-size: 11px;
+	font-size: 10px;
 }
-td.cellColor1, .cellColor1 {
+.cellColor1, td.cellColor1 {
+	font-family: monospace;
     padding: 2px;
     background-color: #F8FAEA;
-    font-size: 11px;
+	font-size: 10px;
 }
 /*
 Special Alternating row colors for viruses
@@ -461,6 +463,7 @@ div.mycal_div {
 } 
 
 .stdFont {
+/*	font-family: monospace;*/
     font-size: 11px;
 } 
 

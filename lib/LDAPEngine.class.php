@@ -15,11 +15,9 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
-
+include_once('lib/CmnFns.class.php');
 
 class LDAPEngine {
-
 	// The directory server, tested with OpenLDAP and Active Directory
 	var $serverType;
 
@@ -81,15 +79,14 @@ class LDAPEngine {
 	// Result of any connection
 	var $bind;
     	var $connected;
-   
-	// The user's logon name 
+
+	// The user's logon name
     	var $logonName;
-	// The user's first name 
+	// The user's first name
     	var $firstName;
 	// The user's mail address ($mailAttr value)
     	var $emailAddress;
 
-    
 	/**
 	* LDAPEngine constructor to initialize object
 	*/
@@ -130,7 +127,7 @@ class LDAPEngine {
 	}
 
 	// Connection handling methods -------------------------------------------
-    
+
     	/**
 	* Makes a connection to the LDAP server.
 	* Just creates a connection which is used in all later access.
@@ -140,7 +137,6 @@ class LDAPEngine {
 	* @param none
 	*/
     	function connect() {
-
 		foreach ($this->hosts as $host) {
 			$ldap_url = ( $this->ssl ? "ldaps://".$host : $host );
 			$this->connection = ldap_connect($ldap_url);
@@ -218,7 +214,6 @@ class LDAPEngine {
 		}
         }
 
-
 	// User methods -------------------------------------------
 
     	/**
@@ -282,7 +277,6 @@ class LDAPEngine {
 	* @return array
      	*/
     	function searchUserDN($searchFilter) {
-
 		switch ($this->serverType) {
 			case "ldap":
 				if ( $this->searchUser != '' ) {
@@ -318,14 +312,12 @@ class LDAPEngine {
         	return $dn;
     	}
 
-
 	/**
 	* Queries LDAP for user information
 	* @param string $dn
 	* @return boolean indicating success or failure
 	*/
 	function loadUserData($dn) {
-
 		$this->emailAddress = array();
 
 		// We are instered in getting just the user's first name and his/her mail attribute(s)
@@ -347,11 +339,11 @@ class LDAPEngine {
         				$result = ldap_search( $this->connection, $dn, "objectclass=*", $attributes );
 				}
 				break;
-		}	
+		}
 
         	$entries = ldap_get_entries( $this->connection, $result );
 
-        	if( $result and ( $entries["count"] > 0 ) ) {        
+        	if( $result and ( $entries["count"] > 0 ) ) {
 			// The search should give a single entry
 			// If several results are found get the first entry
             		$this->firstName = $entries[0][strtolower($this->name)][0];
@@ -366,15 +358,15 @@ class LDAPEngine {
 					}
 				}
 			}
-        	} else {    
+        	} else {
             		// If no results returned
             		$this->ldapErrorCode = -1;
             		$this->ldapErrorText = "No entry found matching search criteria";
 			CmnFns::write_log($this->ldapErrorCode . ': ' . $this->ldapErrorText, '');
             		return false;
        		}
-	
-	   	return true;	
+
+	   	return true;
 	}
 
 
@@ -385,14 +377,12 @@ class LDAPEngine {
         * @return array containing user information
         */
 	function getUserData() {
-        	$return = array(
+        	$rval = array(
             			'logonName' => $this->logonName,
             			'firstName' => $this->firstName,
             			'emailAddress' => $this->emailAddress
         	);
-        	return $return;
+        	return $rval;
     	}
-
-	
 }
 ?>

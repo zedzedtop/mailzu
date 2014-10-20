@@ -19,7 +19,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 /**
 * Pear::DB
 */
@@ -35,7 +35,6 @@ else {
 * Provide all database access/manipulation functionality for SQL Auth
 */
 class DBAuth {
-
 	// Reference to the database object
 	var $db;
 
@@ -76,7 +75,7 @@ class DBAuth {
         var $emailAddress;
 
 	var $err_msg = '';
-	
+
 	/**
 	* DBEngine constructor to initialize object
 	* @param none
@@ -95,24 +94,23 @@ class DBAuth {
 		$this->dbTablePassword = $conf['auth']['dbTablePassword'];
 		$this->dbTableName = $conf['auth']['dbTableName'];
 		$this->dbTableMail = $conf['auth']['dbTableMail'];
-		
+
 		$this->db_connect();
 	}
 
 	// Connection handling methods -------------------------------------------
-	
+
 	/**
 	* Create a persistent connection to the database
 	* @param none
 	*/
 	function db_connect() {
-	
 		/***********************************************************
 		/ This uses PEAR::DB
 		/ See http://www.pear.php.net/manual/en/package.database.php#package.database.db
 		/ for more information and syntax on PEAR::DB
 		/**********************************************************/
-	
+
 		// Data Source Name: This is the universal connection string
 		// See http://www.pear.php.net/manual/en/package.database.php#package.database.db
 		// for more information on DSN
@@ -122,20 +120,20 @@ class DBAuth {
 
 		// Make persistant connection to database
 		$db = DB::connect($dsn, true);
-	
+
 		// If there is an error, print to browser, print to logfile and kill app
 		if (DB::isError($db)) {
 			die ('Error connecting to database: ' . $db->getMessage() );
 		}
-		
+
 		// Set fetch mode to return associatve array
 		$db->setFetchMode(DB_FETCHMODE_ASSOC);
-	
+
 		$this->db = $db;
 	}
 
 
-	// User methods -------------------------------------------	
+	// User methods -------------------------------------------
 
 	/**
 	* Authenticates user
@@ -144,7 +142,6 @@ class DBAuth {
 	* @return boolean
 	*/
 	function authUser($username, $password) {
-
 		if ( $this->isMd5 )
 			$password = md5( $password );
 
@@ -167,7 +164,6 @@ class DBAuth {
 			$this->err_msg = translate('There are no records in the table.');
 			return false;
 		} else {
-
 			// Fetch the first row of data
 			$rs = $this->cleanRow($result->fetchRow());
 
@@ -181,7 +177,7 @@ class DBAuth {
 			return true;
 		}
 	}
-	
+
 	/**
 	* Checks to see if there was a database error and die if there was
 	* @param object $result result object of query
@@ -193,8 +189,7 @@ class DBAuth {
 				. '<br />' . '<a href="javascript: history.back();">' . translate('Back') . '</a>');
 		return false;
 	}
-	
-	
+
 	/**
 	* Strips out slashes for all data in the return row
 	* - THIS MUST ONLY BE ONE ROW OF DATA -
@@ -202,13 +197,13 @@ class DBAuth {
 	* @return array with same key => value pairs (except slashes)
 	*/
 	function cleanRow($data) {
-		$return = array();
-			
+		$rval = array();
+
 		foreach ($data as $key => $val)
-			$return[$key] = stripslashes($val);
-		return $return;
+			$rval[$key] = stripslashes($val);
+		return $rval;
 	}
-	
+
 	/**
 	* Returns the last database error message
 	* @param none
@@ -225,13 +220,12 @@ class DBAuth {
         * @return array containing user information
         */
 	function getUserData() {
-        	$return = array(
+        	$rval = array(
             			'logonName' => $this->logonName,
             			'firstName' => $this->firstName,
             			'emailAddress' => $this->emailAddress
         	);
-        	return $return;
+        	return $rval;
     	}
-
 }
 ?>

@@ -51,8 +51,9 @@ startDataDisplayCol();
 
 if (! Auth::isMailAdmin()) {
   CmnFns::do_error_box(translate('Access Denied'));
-
 } else {
+  // Arbitrary type for Admin
+  $content_type = (CmnFns::get_ctype() ? CmnFns::get_ctype() : 'A');
   // Draw search engine
   printSearchEngine($content_type, $_SERVER['PHP_SELF'], 1);
   echo '<br>';
@@ -67,8 +68,6 @@ if (! Auth::isMailAdmin()) {
   $search_array = array_merge( $search_array1, $search_array2, $search_array3, $search_array4 );
 
   $order = array('msgs.time_num', 'from_addr', 'msgs.subject', 'spam_level', 'recip.email', 'msgs.content', 'mail_id');
-  // Arbitrary type for Admin
-  $content_type = (CmnFns::get_ctype() ? CmnFns::get_ctype() : 'A');
 
   // Print a loading message until database returns...
   printMessage(translate('Retrieving Messages...'));

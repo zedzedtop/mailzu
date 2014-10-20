@@ -15,17 +15,16 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 
 /**
 * Provide all database access/manipulation functionality for Exchange Auth
 */
 class ExchAuth {
-
 	// The exchange hostname with port (hostname[:port])
         var $exchHost;
         // The exchange LDAP URI (ldap://hostname[:port])
-        var $exchLDAP; 
+        var $exchLDAP;
         // The user's logon name
         var $logonName;
         // The user's first name
@@ -34,7 +33,7 @@ class ExchAuth {
         var $emailAddress;
 
 	var $err_msg = '';
-	
+
 	/**
 	* Constructor to initialize object
 	* @param none
@@ -46,7 +45,7 @@ class ExchAuth {
 		$this->exchLDAP = $conf['auth']['exch_ldap'];
 	}
 
-	// User methods -------------------------------------------	
+	// User methods -------------------------------------------
 
 	/**
 	* Authenticates user
@@ -56,7 +55,6 @@ class ExchAuth {
 	* @return boolean
 	*/
 	function authUser($username, $password, $domain) {
-		
 		$fulluser = $domain.'/'.$username;
 		$mbox = imap_open('{'.$this->exchHost.'/imap}Inbox', $fulluser, $password);
 		if ($mbox === false) {
@@ -97,7 +95,7 @@ class ExchAuth {
 		ldap_close($ldapconn);
 		return true;
 	}
-	
+
 	/**
 	* Returns the last error message
 	* @param none
@@ -121,6 +119,5 @@ class ExchAuth {
         	);
         	return $return;
     	}
-
 }
 ?>

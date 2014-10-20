@@ -81,7 +81,7 @@ class Auth {
 	function is_logged_in() {
 		return isset($_SESSION['sessionID']);
 	}
-	
+
 	/**
 	* Returns the currently logged in user's userid
 	* @param none
@@ -105,7 +105,7 @@ class Auth {
 		global $conf;
 		$msg = '';
 		$allowedToLogin = true;
-		
+
 		if (empty($resume)) $resume = 'summary.php';		// Go to control panel by default
 
 		$_SESSION['sessionID'] = null;
@@ -114,7 +114,7 @@ class Auth {
 		$_SESSION['sessionAdmin'] = null;
 		$_SESSION['sessionMailAdmin'] = null;
 		$_SESSION['sessionNav'] = null;
-			
+
 		$login = stripslashes($login);
 		$pass = stripslashes($pass);
 		$ok_user = $ok_pass = false;
@@ -135,18 +135,16 @@ class Auth {
 
 				case "ad":
                         	case "ldap":
-		
 					// Added this check for LDAP servers that switch to anonymous bind whenever
 					// provided password is left blank
 					if ($pass == '') return (translate ('Invalid User Name/Password.'));
- 
+
 		    			// Include LDAPEngine class
             				include_once('LDAPEngine.class.php');
-		  
-            				$ldap = new LDAPEngine();
-                       
-	        			if( $ldap->connect() ) {
 
+            				$ldap = new LDAPEngine();
+
+	        			if( $ldap->connect() ) {
 						// Get user DN
 						// For AD it could be of the form of 'user@domain' or standard LDAP dn
 						$dn = $ldap->getUserDN($login);
@@ -157,20 +155,19 @@ class Auth {
                                                         $msg .= 'User is not allowed to login';
 						// If user is allowed to log in try a bind
                                                 } elseif ( ($dn != '') && $ldap->authBind($dn, $pass) ) {
-							$ldap->logonName = $login; 
+							$ldap->logonName = $login;
 							$ldap->loadUserData($dn);
-           						$data = $ldap->getUserData(); 
+           						$data = $ldap->getUserData();
                     					$ok_user = true; $ok_pass = true;
             					} else {
                 					$msg .= 'Invalid User Name/Password.';
             					}
-            
+
 						$ldap->disconnect();
 					}
 					break;
 
                         	case "sql":
-		  
 		    			// Include DBAuth class
             				include_once('DBAuth.class.php');
 
@@ -204,11 +201,10 @@ class Auth {
 					} else {
 					        $msg .= 'Invalid User Name/Password.';
 					}
-					
+
 					break;
 
                         	case "imap":
-		  
 		    			// Include IMAPAuth class
             				include_once('IMAPAuth.class.php');
 
@@ -227,7 +223,8 @@ class Auth {
 					break;
 
 				default:
-                                CmnFns::do_error_box(translate('Unknown server type'), '', false);
+	                                CmnFns::do_error_box(translate('Unknown server type'), '', false);
+					break;
 			}
         	}
 
@@ -236,7 +233,6 @@ class Auth {
 			CmnFns::write_log('Authentication failed' . ', ' . $msg, $login);
 			return translate($msg);
 		} else {
-		
 			$this->is_loggedin = true;
 			CmnFns::write_log('Authentication successful', $login);
 
@@ -257,14 +253,14 @@ class Auth {
 			$_SESSION['sessionName'] = $data['firstName'];
 			$_SESSION['sessionMail'] = $data['emailAddress'];
 
-			
+
 			// If it is the super admin, set session variable
 			foreach ($conf['auth']['s_admins'] as $s_admin) {
 				if (strtolower($s_admin) == strtolower($_SESSION['sessionID'])) {
 				  $_SESSION['sessionAdmin'] = true;
 				}
 			}
-		
+
 			// If it is the mail admin, set session variable
 			foreach ($conf['auth']['m_admins'] as $m_admin) {
 				if (strtolower($m_admin) == strtolower($_SESSION['sessionID'])) {
@@ -275,14 +271,13 @@ class Auth {
 			if ($lang != '') {
 				set_language($lang);
 			}
-			
+
 			// Send them to the control panel
 			CmnFns::redirect(urldecode($resume));
 		}
 	}
 
 	function isAllowedToLogin( $username ) {
-
 		global $conf;
 
 		// If not defined or set to false, $username is allowed to log in
@@ -295,7 +290,6 @@ class Auth {
 			}
 		}
 	}
-
 
 	/**
 	* Log the user out of the system
@@ -322,7 +316,7 @@ class Auth {
 
 			// Log in logfile
 			CmnFns::write_log('Logout successful', $login);
-			
+
 			// Refresh page
 			CmnFns::redirect($_SERVER['PHP_SELF']);
 		}
@@ -374,7 +368,7 @@ class Auth {
 	function print_login_msg($kill = true) {
 		CmnFns::redirect(CmnFns::getScriptURL() . '/index.php?auth=no&resume=' . urlencode($_SERVER['PHP_SELF']) . '?' . urlencode($_SERVER['QUERY_STRING']));
 	}
-	
+
 	/**
 	* Prints out the latest success box
 	* @param none

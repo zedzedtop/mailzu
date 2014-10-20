@@ -23,7 +23,7 @@
 /**
 * CmnFns class
 */
-include_once('CmnFns.class.php');
+include_once('lib/CmnFns.class.php');
 /**
 * Auth class
 */
@@ -43,7 +43,6 @@ else {
 * Provide all database access/manipulation functionality
 */
 class DBEngine {
-
 	// Reference to the database object
 	var $db;
 
@@ -59,10 +58,10 @@ class DBEngine {
 	var $dbUser;
 	// Password for database user
 	var $dbPass;
-	
+
 	var $err_msg = '';
 	var $numRows;
-	
+
 	/**
 	* DBEngine constructor to initialize object
 	* @param none
@@ -78,20 +77,19 @@ class DBEngine {
 
 		$this->db_connect();
 	}
-	
+
 	/**
 	* Create a persistent connection to the database
 	* @param none
 	* @global $conf
 	*/
 	function db_connect() {
-	
 		/***********************************************************
 		/ This uses PEAR::DB
 		/ See http://www.pear.php.net/manual/en/package.database.php#package.database.db
 		/ for more information and syntax on PEAR::DB
 		/**********************************************************/
-	
+
 		// Data Source Name: This is the universal connection string
 		// See http://www.pear.php.net/manual/en/package.database.php#package.database.db
 		// for more information on DSN
@@ -100,29 +98,27 @@ class DBEngine {
 
 		// Make persistant connection to database
 		$db = DB::connect($dsn, true);
-	
+
 		// If there is an error, print to browser, print to logfile and kill app
 		if (DB::isError($db)) {
 			CmnFns::write_log('Error connecting to database: ' . $db->getMessage(), $_SESSION['sessionID']);
 			die ('Error connecting to database: ' . $db->getMessage() );
 		}
-		
+
 		// Set fetch mode to return associatve array
 		$db->setFetchMode(DB_FETCHMODE_ASSOC);
-	
+
 		$this->db = $db;
 	}
-
 
 	/**
 	* Return counts for spam, banned, viruses, bad headers, and pending
 	* @return array of the 5 counts
 	*/
 	function get_site_summary() {
-
 		global $conf;
 
-		$return = array();
+		$rval = array();
 		$total = array( 'spam' => 0, 'banned' => 0, 'virus' => 0, 'header' => 0, 'pending' => 0, 'total' => 0);
 
 		$query = "SELECT date,
@@ -148,7 +144,7 @@ class DBEngine {
 					COUNT(msgs.content) AS banned,
 					0 AS viruses,
 					0 AS badheaders,
-					0 AS pending 
+					0 AS pending
 					FROM msgs INNER JOIN msgrcpt ON msgs.mail_id=msgrcpt.mail_id
 					WHERE msgs.content='B' AND NOT (msgs.quar_type = '')
 					AND msgrcpt.rs IN ('','v')
@@ -195,13 +191,13 @@ class DBEngine {
 		// Execute query
 		$result = $this->db->execute($q);
 		// Check if error
-		$this->check_for_error($result, $query); 
-			
+		$this->check_for_error($result, $query);
+
 		while ($rs = $result->fetchRow()) {
 			$timestamp = CmnFns::formatDateISO($rs['date']);
 			$date = CmnFns::formatDate($timestamp);
 			$totalthisdate = $rs['spam'] + $rs['banned'] + $rs['viruses'] + $rs['badheaders'] + $rs['pending'];
-			$return[$date] = array('spam' => $rs['spam'],
+			$rval[$date] = array('spam' => $rs['spam'],
 				'banned' => $rs['banned'],
 				'virus' => $rs['viruses'],
 				'header' => $rs['badheaders'],
@@ -210,19 +206,19 @@ class DBEngine {
 		}
 
 		// Total the data
-		foreach ($return as $date => $typearray) {
+		foreach ($rval as $date => $typearray) {
 			foreach ($typearray as $type => $count) {
 				$total[$type] += $count;
 			}
 		}
 
-		$return['Total'] = $total;
+		$rval['Total'] = $total;
 		$result->free();
 
-		return $return;
+		return $rval;
 	}
-	
-	// User methods -------------------------------------------	
+
+	// User methods -------------------------------------------
 
 	/**
 	* Return counts for spam, banned, viruses, bad headers, and pending
@@ -230,17 +226,16 @@ class DBEngine {
 	* @return array of the 5 counts
 	*/
 	function get_user_summary($emailaddresses) {
-
 		global $conf;
 
-		$return = array();
+		$rval = array();
 		$total = array('spam' => 0, 'banned' => 0, 'virus' => 0, 'header' => 0, 'pending' => 0, 'total' => 0);
 
 		// Get where clause for recipient email address(es)
 		$recipEmailClause =  $this->convertEmailaddresses2SQL($emailaddresses);
 
 		# mysql seems to run faster with a left join
-		if ($conf['db']['dbtype'] == 'mysql') {
+		if ($conf['db']['dbType'] == 'mysql') {
 			$join_type = ' LEFT JOIN';
 		} else {
 			$join_type = ' INNER JOIN';
@@ -270,7 +265,7 @@ class DBEngine {
 					COUNT(msgs.content) AS banned,
 					0 AS viruses,
 					0 AS badheaders,
-					0 AS pending 
+					0 AS pending
 					FROM msgs INNER JOIN msgrcpt ON msgs.mail_id=msgrcpt.mail_id
 					$join_type maddr AS recip ON msgrcpt.rid=recip.id
 					WHERE msgs.content='B' AND NOT (msgs.quar_type = '') AND msgrcpt.rs IN ('','v')
@@ -321,13 +316,13 @@ class DBEngine {
 		// Execute query
 		$result = $this->db->execute($q);
 		// Check if error
-		$this->check_for_error($result, $query); 
+		$this->check_for_error($result, $query);
 
 		while ($rs = $result->fetchRow()) {
 			$timestamp = CmnFns::formatDateISO($rs['date']);
 			$date = CmnFns::formatDate($timestamp);
 			$totalthisdate = $rs['spam'] + $rs['banned'] + $rs['viruses'] + $rs['badheaders'] + $rs['pending'];
-			$return[$date] = array('spam' => $rs['spam'],
+			$rval[$date] = array('spam' => $rs['spam'],
 				'banned' => $rs['banned'],
 				'virus' => $rs['viruses'],
 				'header' => $rs['badheaders'],
@@ -336,16 +331,16 @@ class DBEngine {
 		}
 
 		// Total the data
-		foreach ($return as $date => $typearray) {
+		foreach ($rval as $date => $typearray) {
 			foreach ($typearray as $type => $count) {
 				$total[$type] += $count;
 			}
 		}
 
-		$return['Total'] = $total;
+		$rval['Total'] = $total;
 		$result->free();
 
-		return $return;
+		return $rval;
 	}
 
 	/**
@@ -356,13 +351,12 @@ class DBEngine {
 	* @param string $vert sql vertical order string
 	* @param array $search_array for search engine
 	* @param boolean $msgs_all if true get messages for all users, if false get messages for users in $emailaddresses
-	* @param integer $rs_option: 0 for new and read messages; 1 for pending messagesr; 2 for new, read and pending 
+	* @param integer $rs_option: 0 for new and read messages; 1 for pending messagesr; 2 for new, read and pending
 	* @param integer $page: page number, 0 by default
-	* @param boolean $get_all, if true get all messages. False by default. 
+	* @param boolean $get_all, if true get all messages. False by default.
 	* @return array of messages in quarantine
 	*/
 	function get_user_messages($content_type, $emailaddresses, $order = 'msgs.time_num', $vert = 'DESC', $search_array = '', $msgs_all = false, $rs_option = 0, $page = 0, $get_all = false) {
-
 		global $conf;
 
 		# MySQL seems to run faster with a LEFT JOIN
@@ -373,23 +367,23 @@ class DBEngine {
 		}
 
 		// grab the display size limit set in config.php
-		$sizeLimit = isset ( $conf['app']['displaySizeLimit'] ) && is_numeric( $conf['app']['displaySizeLimit'] ) ?
-												 $conf['app']['displaySizeLimit'] : 50;
+		$sizeLimit = isset ( $conf['app']['displaySizeLimit'] ) &&
+				is_numeric( $conf['app']['displaySizeLimit'] ) ? $conf['app']['displaySizeLimit'] : 50;
 
-		$return = array();
+		$rval = array();
 
 		if (is_array($search_array)) {
 			$search_clause = "";
 			foreach($search_array as $filter) {
-					$search_clause .= ' AND ' . $filter;
-				}
+				$search_clause .= ' AND ' . $filter;
+			}
 		}
 
 		if ( ! $msgs_all ) {
 			// Get where clause for recipient email address(es)
 			$emailaddr_clause = ( ! empty($emailaddresses) ?
 						' AND ' . $this->convertEmailaddresses2SQL($emailaddresses) :
-						'' ); 
+						'' );
 		}
 
 		switch ($rs_option) {
@@ -407,8 +401,7 @@ class DBEngine {
 		}
 
 		if ( Auth::isMailAdmin() ) {
-			$type_clause = ($content_type == 'A' ? ' msgs.content in (\'S\', \'B\', \'V\', \'H\')'
-								: ' msgs.content=?');
+			$type_clause = ($content_type == 'A' ? ' msgs.content in (\'S\', \'B\', \'V\', \'H\')' : ' msgs.content=?');
 		} else {
 			if ( $content_type == 'A' ) {
 				$type_clause = ' msgs.content in (\'S\', \'B\'';
@@ -419,20 +412,27 @@ class DBEngine {
 			}
 		}
 
-		$query = "SELECT msgs.time_num, msgs.from_addr,
-			msgs.mail_id, msgs.subject, msgs.spam_level, msgs.content,
-			msgrcpt.rs, msgs.quar_type, recip.email
+		$query = "SELECT
+			msgs.time_num,
+			msgs.from_addr,
+			msgs.mail_id,
+			msgs.subject,
+			msgs.spam_level,
+			msgs.content,
+			msgrcpt.rs,
+			msgs.quar_type,
+			recip.email
 			FROM msgs
-			INNER JOIN msgrcpt ON msgs.mail_id=msgrcpt.mail_id
-			$join_type maddr AS sender ON msgs.sid=sender.id
-			$join_type maddr AS recip  ON msgrcpt.rid=recip.id
+			INNER JOIN msgrcpt		ON msgs.mail_id = msgrcpt.mail_id
+			$join_type maddr AS sender 	ON msgs.sid = sender.id
+			$join_type maddr AS recip  	ON msgrcpt.rid = recip.id
 			WHERE $type_clause"
 			// Only check against the email address when not admin
 			. ($msgs_all ? ' ' : $emailaddr_clause)
 			. " $rs_clause
-					$search_clause
-					AND msgs.quar_type <> ''
-					ORDER BY $order $vert ";
+			$search_clause
+			AND msgs.quar_type <> ''
+			ORDER BY $order $vert ";
 
 		// Prepare query
 		$q = $this->db->prepare($query);
@@ -447,17 +447,17 @@ class DBEngine {
 		}
 
 		// Check if error
-                $this->check_for_error($result, $query); 
-	
+                $this->check_for_error($result, $query);
+
 		$this->numRows = $result->numRows();
-	
+
 		if ($this->numRows <= 0) {
 			return NULL;
 		}
 
 		if ( $get_all ) {
 			while ($rs = $result->fetchRow()) {
-				$return[] = $this->cleanRow($rs);
+				$rval[] = $this->cleanRow($rs);
 			}
 		} else {
 			// the row to start fetching
@@ -470,15 +470,15 @@ class DBEngine {
     				if (!$row = $result->fetchrow(DB_FETCHMODE_ASSOC, $rownum)) {
         				break;
     				}
-				$return[] = $this->cleanRow($row);
+				$rval[] = $this->cleanRow($row);
 			}
 		}
-		
+
 		$result->free();
 
-		return $return;
+		return $rval;
 	}
-	
+
 	/**
 	* Return message(s) in quarantine associated with $emailaddress and $mail_id
 	* @param string $emailaddress user email address
@@ -487,7 +487,6 @@ class DBEngine {
 	* @return array of message(s)
 	*/
 	function get_message($emailaddress, $mail_id) {
-
 		global $conf;
 
 		# MySQL seems to run faster with a LEFT JOIN
@@ -497,17 +496,17 @@ class DBEngine {
 		  $join_type = ' INNER JOIN';
 		}
 
-		$recipEmailClause =  $this->convertEmailaddresses2SQL($emailaddresses);
+		$recipEmailClause = $this->convertEmailaddresses2SQL($emailaddress);
 
-		$return = array();
-		
+		$rval = array();
+
 		$query = 'SELECT msgs.time_num, msgs.secret_id, msgs.subject, msgs.from_addr, msgs.spam_level,'
 			. ' msgrcpt.rs, recip.email, msgs.host, msgs.content, msgs.quar_type, msgs.quar_loc' 
 			. ' FROM msgs'
 			. ' INNER JOIN msgrcpt ON msgs.mail_id=msgrcpt.mail_id'
 			. $join_type . ' maddr AS sender ON msgs.sid=sender.id'
 			. $join_type . ' maddr AS recip  ON msgrcpt.rid=recip.id'
-			. ' WHERE recip.email=? ' 
+			. ' WHERE recip.email=? '
 			. ' AND msgs.mail_id=? ';
 
 		$values = array($emailaddress, $mail_id);
@@ -517,18 +516,18 @@ class DBEngine {
 		// Execute query
 		$result = $this->db->execute($q, $values);
 		// Check if error
-                $this->check_for_error($result, $query); 
-		
+                $this->check_for_error($result, $query);
+
 		if ($result->numRows() <= 0) {
 			return NULL;
 		}
 		while ($rs = $result->fetchRow()) {
-			$return[] = $this->cleanRow($rs);
+			$rval[] = $this->cleanRow($rs);
 		}
-		
+
 		$result->free();
-		
-		return $return;
+
+		return $rval;
 	}
 
 	/**
@@ -540,7 +539,6 @@ class DBEngine {
 	* @return array of message(s)
 	*/
 	function update_msgrcpt_rs($mail_id, $mail_rcpt, $flag) {
-
 		// If its a pending message, do not set the rs flag to 'v'
 		$cur_msg_array = $this->get_message($mail_rcpt, $mail_id);
 		$msg_status = $cur_msg_array[0];
@@ -562,7 +560,6 @@ class DBEngine {
 		return true;
 	}
 
-
 	/**
 	* Function that returns number of entries for logged in user
 	* where RS flag is equal to $flag
@@ -571,12 +568,11 @@ class DBEngine {
 	* @return number of message(s)
 	*/
 	function get_count_rs($emailaddresses, $flag) {
-
 		// Get where clause for recipient email address(es)
 		$emailaddr_clause = $this->convertEmailaddresses2SQL($emailaddresses);
 		if ( $emailaddr_clause != '' )
 			$emailaddr_clause = ' AND ' . $emailaddr_clause;
-		
+
 		$query = 'SELECT mail_id FROM msgrcpt, maddr as recip'
 				. ' WHERE msgrcpt.rid=recip.id'
 				. $emailaddr_clause
@@ -589,12 +585,12 @@ class DBEngine {
 		// Execute query
 		$result = $this->db->execute($q, $values);
 		// Check if error
-                $this->check_for_error($result, $query); 
-	
+                $this->check_for_error($result, $query);
+
 		$count = $result->numRows();
-	
+
 		$result->free();
-		
+
 		return $count;
 	}
 
@@ -618,7 +614,6 @@ class DBEngine {
 		  }
                 }
 
-
 		if (Auth::isMailAdmin()) {
 		  $values = array($mail_id);
 		  $query = 'SELECT' . $mail_text_column . ' FROM quarantine ' .
@@ -636,20 +631,21 @@ class DBEngine {
                 // Execute query
                 $result = $this->db->execute($q, $values);
                 // Check if error
-                $this->check_for_error($result, $query); 
-                
-                if ($result->numRows() <= 0){ 
+                $this->check_for_error($result, $query);
+
+                if ($result->numRows() <= 0){
                         return false;
                 }
+		$rval = "";
                 while ($rs = $result->fetchRow()) {
-                        $return .= $rs['mail_text'];
+                        $rval .= $rs['mail_text'];
                 }
-                
+
                 $result->free();
-                
-                return $return;
+
+                return $rval;
         }
-		
+
 	/**
 	* Checks to see if there was a database error, log in file and die if there was
 	* @param object $result result object of query
@@ -673,7 +669,7 @@ class DBEngine {
 		}
 		return false;
 	}
-	
+
 	/**
 	* Strips out slashes for all data in the return row
 	* - THIS MUST ONLY BE ONE ROW OF DATA -
@@ -681,13 +677,13 @@ class DBEngine {
 	* @return array with same key => value pairs (except slashes)
 	*/
 	function cleanRow($data) {
-		$return = array();
-			
+		$rval = array();
+
 		foreach ($data as $key => $val)
-			$return[$key] = stripslashes($val);
-		return $return;
+			$rval[$key] = stripslashes($val);
+		return $rval;
 	}
-	
+
 	/**
 	* Returns the last database error message
 	* @param none
@@ -705,11 +701,9 @@ class DBEngine {
 	* @return array containing SQL code
 	*/
 	function convertSearch2SQL($field, $criterion, $string) {
-	
 		$result = array();
-	
-		if ( $string != '' ) {
 
+		if ( $string != '' ) {
 			switch ($criterion) {
                 		case "contains":
                         		$search_clause = "(" . $field . " LIKE '%" . $string . "%')" ;
@@ -728,7 +722,6 @@ class DBEngine {
 			}
 			array_push($result, $search_clause);
 		}
-
 		return $result;
 	}
 
@@ -738,7 +731,6 @@ class DBEngine {
 	* @return string containing SQL code
 	*/
 	function convertEmailaddresses2SQL($emailaddresses) {
-
 		global $conf;
 		$result = '';
 		$emailtuple = '';
@@ -752,7 +744,7 @@ class DBEngine {
 
 			// Configured to support recipient delimiters?
 			if(!empty($conf['recipient_delimiter']) ) {
-				$delimiter = $conf['recipient_delimiter']; 
+				$delimiter = $conf['recipient_delimiter'];
 				foreach ( $emailaddresses as $value ) {
 					// separate localpart and domain
 					list($localpart, $domain) = explode("@", $value);
@@ -764,7 +756,5 @@ class DBEngine {
 		// Return results within parentheses to isolate OR statements
 		return "($result)";
 	}
-
 }
-
 ?>

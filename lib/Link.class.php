@@ -36,7 +36,7 @@ class Link {
 		$this->style = $style;
 		$this->text_on_over = addslashes($text_on_over);
 	}
-	
+
 	//---------------------------------------------
 	// Setter functions
 	//---------------------------------------------
@@ -47,7 +47,7 @@ class Link {
 	function setUrl($url) {
 		$this->url = $url;
 	}
-	
+
 	/**
 	* Set the text of the link
 	* @param string $text text of link
@@ -55,7 +55,7 @@ class Link {
 	function setText($text) {
 		$this->text = $text;
 	}
-	
+
 	/**
 	* Set the class of the link
 	* @param string $class link class
@@ -63,7 +63,7 @@ class Link {
 	function setClass($class) {
 		$this->_class = $class;
 	}
-	
+
 	/**
 	* Set the inline style of the link
 	* @param string $style inline style of link (overrides class)
@@ -71,7 +71,7 @@ class Link {
 	function setStyle($style) {
 		$this->style = $style;
 	}
-	
+
 	/**
 	* Set the text onmouseover
 	* @param string $text_on_over text to display in status bar onmouseover
@@ -79,7 +79,7 @@ class Link {
 	function setTextOnOver($text_on_over) {
 		$this->text_on_over = addslashes($text_on_over);
 	}
-	
+
 	/**
 	* Set the image source "src" property
 	* @param string $img_src image source property
@@ -87,7 +87,7 @@ class Link {
 	function setImgSrc($img_src) {
 		$this->img_src = $img_src;
 	}
-	
+
 	/**
 	* Set the image alt property
 	* @param string $img_alt image alt property
@@ -97,8 +97,7 @@ class Link {
 	}
 
 	//=============================================
-	
-	
+
 	//---------------------------------------------
 	// Getter functions
 	//---------------------------------------------
@@ -109,7 +108,7 @@ class Link {
 	function getUrl() {
 		return $this->url;
 	}
-	
+
 	/**
 	* Return the text of the link
 	* @return string $text text of link
@@ -117,7 +116,7 @@ class Link {
 	function getText() {
 		return $this->text;
 	}
-	
+
 	/**
 	* Return the class of the link
 	* @return string $class link class
@@ -125,7 +124,7 @@ class Link {
 	function getClass() {
 		return $this->_class;
 	}
-	
+
 	/**
 	* Return the inline style of the link
 	* @return string $style inline style of link (overrides class)
@@ -133,7 +132,7 @@ class Link {
 	function getStyle() {
 		return $this->style;
 	}
-	
+
 	/**
 	* Return the text onmouseover
 	* @return string $text_on_over text to display in status bar onmouseover
@@ -141,7 +140,7 @@ class Link {
 	function getTextOnOver() {
 		return stripslashes($this->text_on_over);
 	}
-	
+
 	/**
 	* Return the image source "src" property
 	* @return string
@@ -149,7 +148,7 @@ class Link {
 	function getImgSrc() {
 		return $img_src;
 	}
-	
+
 	/**
 	* Return the image alt property
 	* @return string
@@ -157,10 +156,9 @@ class Link {
 	function getImgAlt() {
 		return $img_alt;
 	}
-		
+
 	//=============================================
-	
-	
+
 	/**
 	* Print out a link without creating a new Link object
 	* @param string $url url to link to
@@ -170,9 +168,9 @@ class Link {
 	* @param string $text_on_over text to display in status bar onmouseover
 	*/
 	function doLink($url=null, $text=null, $class=null, $style=null, $text_on_over=null, $boldtext=null) {
-		echo $this->getLink($url, $text, $class, $style, $text_on_over, $boldtext);		
+		echo $this->getLink($url, $text, $class, $style, $text_on_over, $boldtext);
 	}
-	
+
 	/**
 	* Print out an image link without creating a new Link obejct
 	* @param string $url url to link to
@@ -183,16 +181,16 @@ class Link {
 	function doImageLink($url = null, $img_src = null, $alt = null, $text_on_over = null) {
 		echo $this->getImageLink($url, $img_src, $alt, $text_on_over);
 	}
-	
+
 	/**
 	* Prints out the link using the class values
 	* @param none
 	* @see doLink()
 	*/
 	function printLink() {
-		$this->doLink($this->url, $this->text, $this->_class, $this->style, $this->text_on_over);		
+		$this->doLink($this->url, $this->text, $this->_class, $this->style, $this->text_on_over);
 	}
-	
+
 	/**
 	* Returns the HTML for the link with given parameters
 	* @param string $url url to link to
@@ -207,7 +205,7 @@ class Link {
 		//return "<a href=\"$url\" class=\"$class\" style=\"$style\" onmouseover=\"javascript: window.status='" . addslashes($text_on_over) . "'; return true;\" onmouseout=\"javascript: window.status=''; return true;\">$text</a>";
 		return "<a href=\"$url\" class=\"$class\" style=\"$style\" onmouseover=\"javascript: window.status='" . addslashes($text_on_over) . "'; return true;\" onmouseout=\"javascript: window.status=''; return true;\">" . ($boldtext ? "<b>$text</b>" : $text) . "</a>";
 	}
-	
+
 	/**
 	* Returns the HTML for the link with given parameters
 	* @param string $url url to link to
